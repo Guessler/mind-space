@@ -1,17 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { FC, useEffect, useState } from "react";
 import { MAKE_TODO } from "./consts";
+import { TaskType } from "./types";
 
-export const rows = [
-  { id: 1, task: "test1", dateNumber: 2235 },
-];
+interface MakeTaskProps{
+  onSubmit: (value: string) => void;
+}
 
-function MakeTask() {
+const MakeTask : FC<MakeTaskProps> = ({onSubmit}) =>  {
   const [todo, setTodo] = useState<string>("");
-  const [tasks, setTasks] = useState<typeof rows>([]);
-
-  useEffect(() => {
-    setTasks(rows);
-  }, []);
 
   const handleAddTask = () => {
     if (todo.trim() === "") {
@@ -19,7 +15,7 @@ function MakeTask() {
       return;
     }
 
-    setTasks([...tasks, { id: tasks.length + 1, task: todo, dateNumber: new Date().getTime() }]);
+    onSubmit(todo.trim())
     setTodo("");
   };
 
@@ -37,13 +33,6 @@ function MakeTask() {
           Добавить
         </button>
       </div>
-      <ul className="decoration-none">
-        {tasks.map((task, index) => (
-          <li key={index} className="decoration-none">
-            <input type="checkbox" /> {task.task}
-          </li>
-        ))}
-      </ul>
     </>
   );
 }

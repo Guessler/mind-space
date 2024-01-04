@@ -32,7 +32,8 @@ export default function DataTable() {
         pagination
         checkboxSelection
         sortModel={sortModel}
-        onSortModelChange={(model) => setSortModel(model)}
+        onSortModelChange={setSortModel}
+        onPaginationModelChange={console.log}
       />
     </div>
   );
