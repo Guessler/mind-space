@@ -1,24 +1,26 @@
-import BasicTable from "./todoPage"
-import MakeTask from './makeTask'
-import Sidebar from "./sidebar"
+import ListTodo from "./listTodo";
+import MakeTask from "./makeTask";
+import Sidebar from "./sidebar";
 import { useState } from "react";
 import { TaskType } from "./types";
-function Todo(){
+function Todo() {
+  const [tasks, setTasks] = useState<TaskType[]>([]);
 
-    const [tasks, setTasks] = useState<TaskType[]>([]);
+  const onSubmit = (value: string) => {
+    setTasks([
+      ...tasks,
+      { id: tasks.length + 1, name: value, dateNumber: new Date().getTime() },
+    ]);
+  };
 
-    const onSubmit = (value: string) => {
-        setTasks([...tasks, { id: tasks.length + 1, name: value, dateNumber: new Date().getTime() }]);
-    }
-
-    return(
-        <div className="d-flex flex-row" >
-            <Sidebar/>
-            <div className="slide d-flex items-center flex-col">
-                <MakeTask onSubmit={onSubmit} />
-                <BasicTable/>
-            </div>
-        </div>
-    )
+  return (
+    <div className="d-flex flex-row">
+      <Sidebar />
+      <div className="slide d-flex items-center flex-col">
+        <MakeTask onSubmit={onSubmit} />
+        <ListTodo onSubmit={onSubmit}/>
+      </div>
+    </div>
+  );
 }
-export default Todo
+export default Todo;
