@@ -1,35 +1,23 @@
-import * as React from "react";
-import { useState } from "react";
-// import {rows} from "./makeTask" 
+import { FC, useState } from "react";
 import {
   DataGrid,
-  GridColDef,
   GridSortModel,
 } from "@mui/x-data-grid";
+import { TaskType } from "./types";
+import { columns } from "./consts";
+import { Grid } from "@mui/material";
+import { PageSizeOptions } from "../../consts/data";
 
-const rows = [
-  { task: "222", time:"2020"}
-]
-const columns: GridColDef[] = [
-  { field: "task", headerName: "Task"},
-  {
-    field: "dateNumber",
-    headerName: "Time",
-    type: "number",
-  },
+interface ListTodoProps{
+  rows: TaskType[];
+}
 
-];
-
-
-
-export default function ListTodo({ onSubmit }: { onSubmit: any;}) {
-  // rows.push()
-console.log(onSubmit)
+const  ListTodo : FC<ListTodoProps> = ({rows}) =>  {
   const [sortModel, setSortModel] = useState<GridSortModel>([
     { field: "lastName", sort: "asc" },
   ]);
   return (
-    <div style={{ height: 400, width: "100%" }}>
+    <Grid container >
       <DataGrid
         rows={rows}
         columns={columns}
@@ -38,7 +26,10 @@ console.log(onSubmit)
         sortModel={sortModel}
         onSortModelChange={setSortModel}
         onPaginationModelChange={console.log}
+        pageSizeOptions={PageSizeOptions}
       />
-    </div>
+    </Grid>
   );
 }
+
+export default ListTodo

@@ -3,6 +3,7 @@ import MakeTask from "./makeTask";
 import Sidebar from "./sidebar";
 import { useState } from "react";
 import { TaskType } from "./types";
+
 function Todo() {
   const [tasks, setTasks] = useState<TaskType[]>([]);
 
@@ -18,7 +19,7 @@ function Todo() {
       <Sidebar />
       <div className="slide d-flex items-center flex-col">
         <MakeTask onSubmit={onSubmit} />
-        <ListTodo onSubmit={onSubmit}/>
+        <ListTodo rows={tasks} />
       </div>
     </div>
   );

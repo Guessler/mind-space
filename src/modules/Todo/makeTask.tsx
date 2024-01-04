@@ -1,6 +1,6 @@
-import React, { FC, useEffect, useState } from "react";
+import { FC, useState } from "react";
 import { MAKE_TODO } from "./consts";
-import { TaskType } from "./types";
+import { Button, TextField, Typography } from "@mui/material";
 
 interface MakeTaskProps{
   onSubmit: (value: string) => void;
@@ -21,17 +21,18 @@ const MakeTask : FC<MakeTaskProps> = ({onSubmit}) =>  {
 
   return (
     <>
-      <h1>{MAKE_TODO}</h1>
+      <Typography fontWeight={'bold'} marginTop={5}>{MAKE_TODO}</Typography>
       <div className="d-flex flex-row">
-        <input
+        <TextField
+          placeholder="Название задачи"
           type="text"
           value={todo}
           onChange={(e) => setTodo(e.target.value)}
-          maxLength={100}
+          required
         />
-        <button onClick={handleAddTask}>
+        <Button variant="contained" onClick={handleAddTask}>
           Добавить
-        </button>
+        </Button>
       </div>
     </>
   );
