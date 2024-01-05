@@ -1,11 +1,9 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import Todo from "../modules/Todo"
-import ModalBox from '../modules/Todo/modalBox';
+import Todo from '../modules/Todo';
 const router = createBrowserRouter([
     {
       path: '/',
-      // element: <Todo/>
-      element: <ModalBox/>
+      element: <Todo />
     },
   ]);
   
