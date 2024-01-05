@@ -5,6 +5,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  
 }
 
 code {
@@ -26,16 +27,14 @@ ul {
 .flex-col{
   flex-direction: column;
 }
-.bg-red{
-  background-color: red;
-  color: green;
-}
+
 .slide{
   width: 100%;
   height: 100%;
   margin-top: 50px;
+  
 }
-.bg-none{
-  width: 100px;
-  background-color: red;
+.popup{
+  width: 500px;
+  height: 500px;
 }

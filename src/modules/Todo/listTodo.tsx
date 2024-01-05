@@ -16,6 +16,9 @@ const  ListTodo : FC<ListTodoProps> = ({rows}) =>  {
   const [sortModel, setSortModel] = useState<GridSortModel>([
     { field: "lastName", sort: "asc" },
   ]);
+  const Test = onclick = () =>{
+    console.log(rows[0].name);
+  }
   return (
     <Grid container >
       <DataGrid
