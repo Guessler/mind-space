@@ -1,4 +1,5 @@
 import { ITodoService } from "../interfaces/interface";
+import { ListParams, ListType } from "../types";
 import { TodoType } from "../types/todo";
 
 export class TodoService implements ITodoService{
@@ -6,6 +7,15 @@ export class TodoService implements ITodoService{
 
     constructor(){
         this.items = new Map()
+    }
+
+    async list (values: ListParams):  Promise<ListType<TodoType>>{
+        const {page, count} = values
+        return {count: this.items.size, data: Array.from(this.items.values()).slice(page - 1, count)}
+    }
+
+    async getOne (id: number): Promise<TodoType | undefined>{
+        return this.items.get(id)
     }
 
     async create (value: string, date: Date): Promise<TodoType>{
