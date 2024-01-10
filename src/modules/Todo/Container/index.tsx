@@ -1,8 +1,27 @@
-function Container(){
-    return(
-        <div className="container">
+import { AppBar, Toolbar, Typography, IconButton, Container } from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
 
-        </div>
-    )
+interface IContainerProps {
+ title: string;
+ children: React.ReactNode;
 }
-export default Container;
+
+const ContainerComponent: React.FC<IContainerProps> = ({ title, children }) => {
+ return (
+    <Container maxWidth="lg">
+      <AppBar position="static">
+        <Toolbar>
+          <IconButton edge="start" color="inherit" aria-label="menu">
+            <MenuIcon />
+          </IconButton>
+          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            {title}
+          </Typography>
+        </Toolbar>
+      </AppBar>
+      {children}
+    </Container>
+ );
+};
+
+export default ContainerComponent;

@@ -8,33 +8,35 @@ import {
 import { TaskType } from "./types";
 import { columns } from "./consts";
 import { Grid, Typography } from "@mui/material";
-import { PageSizeOptions } from "../../consts/data";
 import ModalBox from "../../components/layouts/modalBox";
-
-interface ListTodoProps{
+import { PageSizeOptions } from "../../consts/data";
+interface ListTodoProps {
   rows: TaskType[];
 }
 
-const  ListTodo : FC<ListTodoProps> = ({rows}) =>  {
-
+const ListTodo: FC<ListTodoProps> = ({ rows }) => {
   const [sortModel, setSortModel] = useState<GridSortModel>([
     { field: "lastName", sort: "asc" },
   ]);
 
-  const [open, toggleOpen] = useReducer((prev) => !prev, false)
-  const [activeRow, setActiveRow] = useState<undefined | TaskType>(undefined)
+  const [open, toggleOpen] = useReducer((prev) => !prev, false);
+  const [activeRow, setActiveRow] = useState<undefined | TaskType>(undefined);
 
   const openModalTask = (params: GridCellParams<TaskType, unknown, unknown, GridTreeNode>) => {
-    if(params.field === 'name'){
-      setActiveRow(params.row)
-      toggleOpen()
+    if (params.field === 'name') {
+      setActiveRow(params.row);
+      toggleOpen();
     }
-  }
+  };
+
+
 
   return (
-    <Grid container >
-      <ModalBox open={open} toggleOpen={toggleOpen} >
-        <Typography>{activeRow?.name}</Typography>    
+    <Grid container>
+      <ModalBox open={open} toggleOpen={toggleOpen}>
+        <Typography onClick={() => (window.location.href = `/todo`)}>
+          {activeRow?.name}
+        </Typography>
       </ModalBox>
       <DataGrid
         rows={rows}
@@ -50,6 +52,6 @@ const  ListTodo : FC<ListTodoProps> = ({rows}) =>  {
       />
     </Grid>
   );
-}
+};
 
-export default ListTodo
+export default ListTodo;

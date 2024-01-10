@@ -1,5 +1,5 @@
-import ListTodo from "./ListTodo";
-import MakeTask from "./MakeTask";
+import ListTodo from "./listTodo";
+import MakeTask from "./makeTask";
 import Sidebar from "./sidebar";
 import { useState } from "react";
 import { TaskType } from "./types";

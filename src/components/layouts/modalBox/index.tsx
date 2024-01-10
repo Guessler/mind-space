@@ -1,7 +1,6 @@
 import { FC, PropsWithChildren } from "react";
 import Dialog from "@mui/material/Dialog";
 import { Box } from "@mui/material";
-
 interface ModalBoxProps extends PropsWithChildren{
   open: boolean;
   toggleOpen: () => void;
