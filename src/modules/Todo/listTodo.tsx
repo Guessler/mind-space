@@ -1,4 +1,4 @@
-import { FC, useReducer, useState } from "react";
+import { Dispatch, FC, SetStateAction, useReducer, useState } from "react";
 import {
   DataGrid,
   GridCellParams,
@@ -10,11 +10,14 @@ import { columns } from "./consts";
 import { Grid, Typography } from "@mui/material";
 import ModalBox from "../../components/layouts/modalBox";
 import { PageSizeOptions } from "../../consts/data";
+
 interface ListTodoProps {
   rows: TaskType[];
+  setLimit: Dispatch<SetStateAction<number>>;
+  setPage: Dispatch<SetStateAction<number>>;
 }
 
-const ListTodo: FC<ListTodoProps> = ({ rows }) => {
+const ListTodo: FC<ListTodoProps> = ({ rows, setLimit, setPage }) => {
   const [sortModel, setSortModel] = useState<GridSortModel>([
     { field: "lastName", sort: "asc" },
   ]);
@@ -29,8 +32,6 @@ const ListTodo: FC<ListTodoProps> = ({ rows }) => {
     }
   };
 
-
-
   return (
     <Grid container>
       <ModalBox open={open} toggleOpen={toggleOpen}>
@@ -39,11 +40,15 @@ const ListTodo: FC<ListTodoProps> = ({ rows }) => {
         </Typography>
       </ModalBox>
       <DataGrid
+
         rows={rows}
         columns={columns}
         sortModel={sortModel}
         onSortModelChange={setSortModel}
-        onPaginationModelChange={console.log}
+        onPaginationModelChange={paging => {
+          setPage(paging.page)
+          setLimit(paging.pageSize)
+        }}
         pageSizeOptions={PageSizeOptions}
         onCellClick={openModalTask}
         disableRowSelectionOnClick
