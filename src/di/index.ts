@@ -9,5 +9,4 @@ export class DI{
     public todoService(): ITodoService{
         return new TodoService() 
     }
-    
 }

@@ -1,9 +1,16 @@
-import Express from 'express'
+import Express, { Request } from 'express'
+import cors from 'cors'
 import {start, todoManager } from "./src";
 
 const app = Express()
 
 app.use(Express.json())
+app.use(cors())
+
+interface QueryListParams {
+    page: string;
+    count: string;
+}
 
 app.post('/todo', async (req,res,next) => {
     try{
@@ -13,21 +20,20 @@ app.post('/todo', async (req,res,next) => {
         return res.json(result)
     }catch(err){
         console.log(err)
-        return res.status(400).json(err)
+        return res.status(400).json({err})
     }
 })
 
-// app.get('/todo/list', async (req,res,next) => {
-//     try{
-//         let {page, count} = req.query
+app.get('/todo/list', async (req: Request<{}, {}, {}, QueryListParams>,res,next) => {
+    try{
+        let {page, count} = req.query
 
-//         const result = await todoManager.list({page: parseInt(page as String), count})
-//         return res.json(result)
-//     }catch(err){
-//         console.log(err)
-//         return res.status(400).json(err)
-//     }
-// })
+        const result = await todoManager.list({page: parseInt(page), count: parseInt(count)})
+        return res.json(result)
+    }catch(err){
+        return res.status(400).json({err})
+    }
+})
 
 app.get('/todo/:id', async (req,res,next) => {
     try{
@@ -36,11 +42,11 @@ app.get('/todo/:id', async (req,res,next) => {
         return res.json(result)
     }catch(err){
         console.log(err)
-        return res.status(400).json(err)
+        return res.status(400).json({err})
     }
 })
 
 
-app.listen(3000, () => console.log('server started'))
+app.listen(3001, () => console.log('server started'))
 
 start()
