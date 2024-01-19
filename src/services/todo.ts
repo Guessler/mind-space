@@ -20,7 +20,7 @@ const createFn = async (name: string): Promise<TaskType> => {
 }
 
 const findFn = async (id: string): Promise<TaskType> => {
-    const {data} = await $base_http.get(`${BASE_URL}/todo/${id}`)
+    const {data} = await $base_http.get(`${BASE_URL}/${id}`)
     return data
 }
 

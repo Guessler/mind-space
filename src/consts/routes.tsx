@@ -1,13 +1,14 @@
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Todo from '../modules/Todo';
-import Todos from "../modules/Todo/todos"
+import Todos from "../modules/TodoPage/TodoPage";
+
 const router = createBrowserRouter([
     {
       path: '/',
       element: <Todo />
     },
     {
-      path: '/todo',
+      path: '/todo/:id',
       element: <Todos />
     },
   ]);

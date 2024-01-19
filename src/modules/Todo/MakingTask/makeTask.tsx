@@ -1,5 +1,5 @@
 import { FC, useState } from "react";
-import { MAKE_TODO } from "./consts";
+import { MAKE_TODO } from "../consts";
 import { Button, TextField, Typography } from "@mui/material";
 
 interface MakeTaskProps{

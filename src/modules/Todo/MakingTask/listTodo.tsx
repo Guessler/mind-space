@@ -5,11 +5,12 @@ import {
   GridSortModel,
   GridTreeNode,
 } from "@mui/x-data-grid";
-import { TaskType } from "./types";
-import { columns } from "./consts";
+import { TaskType } from "../types";
+import { columns } from "../consts";
 import { Grid, Typography } from "@mui/material";
-import ModalBox from "../../components/layouts/modalBox";
-import { PageSizeOptions } from "../../consts/data";
+import ModalBox from "../../../components/layouts/modalBox";
+import { PageSizeOptions } from "../../../consts/data";
+import { useNavigate } from "react-router-dom";
 
 interface ListTodoProps {
   rows: TaskType[];
@@ -21,6 +22,7 @@ const ListTodo: FC<ListTodoProps> = ({ rows, setLimit, setPage }) => {
   const [sortModel, setSortModel] = useState<GridSortModel>([
     { field: "lastName", sort: "asc" },
   ]);
+  const navigate = useNavigate();
 
   const [open, toggleOpen] = useReducer((prev) => !prev, false);
   const [activeRow, setActiveRow] = useState<undefined | TaskType>(undefined);
@@ -35,12 +37,11 @@ const ListTodo: FC<ListTodoProps> = ({ rows, setLimit, setPage }) => {
   return (
     <Grid container>
       <ModalBox open={open} toggleOpen={toggleOpen}>
-        <Typography onClick={() => (window.location.href = `/todo`)}>
+        <Typography onClick={() => navigate(`/todo/${activeRow?.id}`)}>
           {activeRow?.name}
         </Typography>
       </ModalBox>
       <DataGrid
-
         rows={rows}
         columns={columns}
         sortModel={sortModel}
