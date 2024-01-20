@@ -13,7 +13,7 @@ import { PageSizeOptions } from "../../../consts/data";
 import { useNavigate } from "react-router-dom";
 
 interface ListTodoProps {
-  rows: TaskType[];
+  rows?: TaskType[];
   setLimit: Dispatch<SetStateAction<number>>;
   setPage: Dispatch<SetStateAction<number>>;
 }
@@ -42,7 +42,7 @@ const ListTodo: FC<ListTodoProps> = ({ rows, setLimit, setPage }) => {
         </Typography>
       </ModalBox>
       <DataGrid
-        rows={rows}
+        rows={rows ?? []}
         columns={columns}
         sortModel={sortModel}
         onSortModelChange={setSortModel}

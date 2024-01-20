@@ -1,20 +1,19 @@
 import ListTodo from "./MakingTask/listTodo";
 import MakeTask from "./MakingTask/makeTask";
 import Sidebar from "./sidebar";
-import { useEffect, useState } from "react";
-import { TaskType } from "./types";
+import { useCallback, useEffect, useState } from "react";
 import useSWR, { mutate } from "swr";
 import { todoService } from "../../services/todo";
 import Loader from './Loader';
 import { Backdrop } from "@mui/material";
 
+
 function Todo() {
   const [limit, setLimit] = useState(25)
   const [page, setPage] = useState(1)
 
-  const listFetcher = () => todoService.findItemsFn(page, limit)
+  const listFetcher = useCallback(() => todoService.findItemsFn(page, limit), [limit, page])
   const {data, isLoading} = useSWR(`/todo/list`, listFetcher)
-  // error
   const onSubmit = async (value: string) => {
     await todoService.createFn(value)
     mutate(listFetcher)
@@ -22,9 +21,7 @@ function Todo() {
 
   useEffect(() => {
     mutate(listFetcher)
-  }, [limit,page])
-
-  // if(isLoading){ return <Loader/> }
+  }, [limit, listFetcher, page])
 
   return (
     <div className="d-flex flex-row">
@@ -32,7 +29,7 @@ function Todo() {
       <Sidebar />
       <div className="slide d-flex items-center flex-col">
         <MakeTask onSubmit={onSubmit} />
-        <ListTodo setPage={setPage} setLimit={setLimit} rows={(data?.data as TaskType[])} />
+        <ListTodo setPage={setPage} setLimit={setLimit} rows={data?.data} />
       </div>
       
     </div>
