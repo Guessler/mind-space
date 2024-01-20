@@ -6,6 +6,7 @@ import useSWR, { mutate } from "swr";
 import { todoService } from "../../services/todo";
 import Loader from './Loader';
 import { Backdrop } from "@mui/material";
+import { BaseLayout } from "../../layout/base";
 
 
 function Todo() {
@@ -24,15 +25,16 @@ function Todo() {
   }, [limit, listFetcher, page])
 
   return (
-    <div className="d-flex flex-row">
-      <Backdrop open={isLoading} ><Loader/></Backdrop>
-      <Sidebar />
-      <div className="slide d-flex items-center flex-col">
-        <MakeTask onSubmit={onSubmit} />
-        <ListTodo setPage={setPage} setLimit={setLimit} rows={data?.data} />
+    <BaseLayout>
+      <div className="d-flex flex-row">
+        <Backdrop open={isLoading} ><Loader/></Backdrop>
+        <Sidebar />
+        <div className="slide d-flex items-center flex-col">
+          <MakeTask onSubmit={onSubmit} />
+          <ListTodo setPage={setPage} setLimit={setLimit} rows={data?.data} />
+        </div>
       </div>
-      
-    </div>
+    </BaseLayout>
   );
 }
 export default Todo;
