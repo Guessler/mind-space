@@ -6,6 +6,7 @@ import { TaskType } from "./types";
 import useSWR, { mutate } from "swr";
 import { todoService } from "../../services/todo";
 import Loader from './Loader';
+import { Backdrop } from "@mui/material";
 
 function Todo() {
   const [limit, setLimit] = useState(25)
@@ -23,15 +24,17 @@ function Todo() {
     mutate(listFetcher)
   }, [limit,page])
 
-  if(isLoading){ return <Loader/> }
+  // if(isLoading){ return <Loader/> }
 
   return (
     <div className="d-flex flex-row">
+      <Backdrop open={isLoading} ><Loader/></Backdrop>
       <Sidebar />
       <div className="slide d-flex items-center flex-col">
         <MakeTask onSubmit={onSubmit} />
         <ListTodo setPage={setPage} setLimit={setLimit} rows={(data?.data as TaskType[])} />
       </div>
+      
     </div>
   );
 }
