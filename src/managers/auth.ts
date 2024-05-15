@@ -1,18 +1,30 @@
-import { authStore } from "../store/auth"
+import { IAuthManager, IAuthStore } from "../interfaces/auth"
 
-class AuthManager{
-    async auth(token?: string): Promise<string>{
+export class AuthManager implements IAuthManager{
+
+    constructor(private readonly authStore: IAuthStore){}
+
+    async auth (token?: string | undefined): Promise<string>{
         if(!token){
-            throw new Error('UNATHORIZED')
+            throw new Error('TOKEN_NOT_FOUND')
         }
 
-        const has = await authStore.checkToken(token)
-        if(!has){
-            throw new Error('TOKEN_INVALID')
-        }
+        try{
+            const session = await this.authStore.findSessionByToken(token)
+            return session.token as string
+        }catch(err){
+            if((err as Error).message === 'NOT_FOUND'){
+                throw new Error("AUTH_FAILED")
+            }
 
-        return "123"
+            console.error(err)
+            throw new Error('UNEXPECTED')
+        }
+    }
+    async login (email?: string | undefined, password?: string | undefined): Promise<string>{
+        throw new Error("NOT_IMPLEMENTED")
+    }
+    async regiter (name: string, email: string, password: string): Promise<boolean>{
+        throw new Error("NOT_IMPLEMENTED")
     }
 }
-
-export const authManager = new AuthManager()

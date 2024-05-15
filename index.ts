@@ -3,10 +3,16 @@ import cors from 'cors'
 const app = Express()
 
 import router from './src/routes'
+import { AuthManager } from './src/managers/auth'
+import { AuthLocalStore } from './src/store/auth'
 
 app.use(Express.json())
 app.use(cors())
 
-app.use('/api', router)
+const store = new AuthLocalStore()
+const manager = new AuthManager(store)
 
-app.listen(3001, () => console.log('server started'))
+app.use('/api', router(manager))
+
+
+app.listen(3001, () => console.log('server started')) 

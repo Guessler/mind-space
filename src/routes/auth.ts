@@ -1,9 +1,12 @@
 import express from 'express'
 import { authConroller } from '../controllers/auth'
+import { IAuthManager } from '../interfaces/auth'
 const router = express()
 
-router.get('/', authConroller.auth)
-router.post('/login', (req,res) => console.log('called auth method'))
-router.post('/register', (req,res) => console.log('called auth method'))
+export const auth = (authManager: IAuthManager) => {
+    const controller = new authConroller(authManager)
 
-export const auth = router
+    router.get('/', controller.auth.bind(controller))
+    
+    return router
+}

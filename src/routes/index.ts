@@ -2,8 +2,11 @@ import express from 'express'
 const router = express()
 import { auth } from './auth'
 import { todo } from './todo'
+import { IAuthManager } from '../interfaces/auth'
 
-router.use('/auth', auth)
-router.use('/todo', todo)
 
-export default router
+export default (authManager: IAuthManager) => {
+    router.use('/auth', auth(authManager))
+    router.use('/todo', todo)
+    return router
+}

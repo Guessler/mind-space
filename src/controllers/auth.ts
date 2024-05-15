@@ -1,20 +1,24 @@
 import { Request, Response } from "express";
-import { authManager } from "../managers/auth";
+import { IAuthManager } from "../interfaces/auth";
 
 class AuthController{
+
+    constructor(private readonly authManager: IAuthManager){}
+
     async auth(req: Request, res: Response){
         try{
             const token = req.headers.authorization
-            const result = await authManager.auth(token)
+            const result = await this.authManager.auth(token)
 
             return res.status(401).json({message: "ACCESS_DENIDED", token: result })
         }catch(err){
-            if((err as Error).message === "UNATHORIZED"){
-                return res.status(401).json({message: (err as Error).message})
+            if((err as Error).message === 'AUTH_FAILED'){
+                return res.status(401).json({message: "Аутентификация провалена. Пожалуйста, авторизуйтесь заново."})
             }
-            return res.status(400).json(err)
+
+            return res.status(400).json({message: (err as Error).message})
         }
     }
-}
+} 
 
-export const authConroller = new AuthController()
+export const authConroller = AuthController
