@@ -1,3 +1,5 @@
+import { User } from "../types/user";
+
 export interface IAuthManager{
     auth: (token?: string) => Promise<string>;
     login: (email?: string, password?: string) => Promise<string>;
@@ -6,4 +8,5 @@ export interface IAuthManager{
 
 export interface IAuthStore{
     findSessionByToken:(token: string) => Promise<any>;
+    getUserByUniq: (value: string | number) => Promise<User>;
 }
