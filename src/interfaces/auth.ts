@@ -7,6 +7,5 @@ export interface IAuthManager{
 }
 
 export interface IAuthStore{
-    findSessionByToken:(token: string) => Promise<any>;
-    getUserByUniq: (value: string | number) => Promise<User>;
+    register: (name: string, email: string, password: string) => Promise<User>;
 }
