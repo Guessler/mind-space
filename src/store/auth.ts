@@ -9,4 +9,9 @@ export class AuthStore implements IAuthStore{
         const user = await UserModel.create({name, email, password})
         return {id: user.dataValues.id, name, email, password}
     };
+    async getUserByEmail (email: string): Promise<User | undefined>{
+        const user = await UserModel.findOne({where: {email}})
+        return user?.dataValues
+    };
+    
 }

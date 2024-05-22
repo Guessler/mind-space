@@ -7,7 +7,7 @@ export const auth = (authManager: IAuthManager) => {
     const controller = new authConroller(authManager)
 
     router.get('/', controller.auth.bind(controller))
-    // router.post('/register', controller.register.bind(controller))
+    router.post('/register', controller.register.bind(controller))
     
     return router
 }

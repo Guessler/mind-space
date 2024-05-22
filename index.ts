@@ -12,18 +12,17 @@ import { AuthStore } from './src/store/auth'
 import db from './src/store/db'
 import './src/store/db/models'
 
+
+const authStore = new AuthStore()
+const authManager = new AuthManager(authStore)
+
+
 app.use(Express.json())
 app.use(cors())
-
-const store = new AuthStore()
-const manager = new AuthManager(store)
-
-
-app.use('/api', router(manager))
+app.use('/api', router(authManager))
 
 const start = async () => {
     try{
-
         await db.sync()
         app.listen(3001, () => console.log('server started')) 
     }catch(err){
