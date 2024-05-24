@@ -51,6 +51,21 @@ export class AuthManager implements IAuthManager{
     async regiter (name: string, email: string, password: string): Promise<boolean>{
         try{
             // TODO: Написать валидации пароля (мин: 6 символов, 1 буква, 1 спец.символ, 1 с верхним или нижним регистром)
+            const camelCasePattern = /[a-z]+[A-Z][a-z]*/;
+            const lowerCasePattern = /[a-z]/;
+            const specialCharacterPattern = /[^a-zA-Z0-9]/;  
+
+            function validatePassword(password:string) {
+                if (password.length >= 6 &&
+                    camelCasePattern.test(password) &&
+                    lowerCasePattern.test(password) &&
+                    specialCharacterPattern.test(password)) {
+                    return true;
+                } else {
+                    throw new Error("INCORRECT_PASSWORD")
+                }
+            }
+            validatePassword(password)
 
             const currentUser = await this.authStore.getUserByEmail(email)
             if(currentUser){
