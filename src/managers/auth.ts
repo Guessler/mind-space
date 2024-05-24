@@ -50,13 +50,13 @@ export class AuthManager implements IAuthManager{
     }
     async regiter (name: string, email: string, password: string): Promise<boolean>{
         try{
+            // TODO: Написать валидации пароля (мин: 6 символов, 1 буква, 1 спец.символ, 1 с верхним или нижним регистром)
+
             const currentUser = await this.authStore.getUserByEmail(email)
             if(currentUser){
                 throw new Error("USER_WITH_THIS_EMAIL_IS_EXISTS")
             }
     
-            // TODO: Написать валидации пароля (мин: 6 символов, 1 буква, 1 спец.символ, 1 с верхним или нижним регистром)
-                
             const hashPassword = bcrypt.hashSync(password,this.hashSteps)
             await this.authStore.register(name, email,hashPassword)
     
