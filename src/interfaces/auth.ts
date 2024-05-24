@@ -8,5 +8,6 @@ export interface IAuthManager{
 
 export interface IAuthStore{
     register: (name: string, email: string, password: string) => Promise<User>;
-    getUserByEmail: (email: string) => Promise<User | undefined>
+    getUserByEmail: (email: string) => Promise<User | undefined>;
+    
 }

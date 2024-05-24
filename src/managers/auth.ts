@@ -68,6 +68,9 @@ export class AuthManager implements IAuthManager{
 
     async regiter (name: string, email: string, password: string): Promise<boolean>{
         try{
+
+            // TODO: Добавить валидацию почты и пробрасывание ошибки о невалидности почты (см. пример с паролем)
+
             if(!this.isValidPassword(password)){
                 throw new Error("INCORRECT_PASSWORD")
             }
