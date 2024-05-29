@@ -65,14 +65,18 @@ export class AuthManager implements IAuthManager{
             lowerCasePattern.test(password) &&
             specialCharacterPattern.test(password)
     }
+    public IsValidEmail(email:string): boolean {
+        const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        return emailPattern.test(email);
+    }
 
     async regiter (name: string, email: string, password: string): Promise<boolean>{
         try{
-
-            // TODO: Добавить валидацию почты и пробрасывание ошибки о невалидности почты (см. пример с паролем)
-
             if(!this.isValidPassword(password)){
                 throw new Error("INCORRECT_PASSWORD")
+            }
+            if(!this.IsValidEmail(password)){
+                console.error("INCORRECT_EMAIL")
             }
 
             const currentUser = await this.authStore.getUserByEmail(email)
