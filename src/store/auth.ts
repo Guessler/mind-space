@@ -1,7 +1,6 @@
 import { IAuthStore } from "../interfaces/auth"
-import { User } from "../types/user";
-import jwt from 'jsonwebtoken'
-import { UserModel } from "./db/models";
+import { Session, User } from "../types/user";
+import { SessionModel, UserModel } from "./db/models";
 
 export class AuthStore implements IAuthStore{
     constructor(){}
@@ -14,4 +13,19 @@ export class AuthStore implements IAuthStore{
         return user?.dataValues
     };
     
+    async getSession (token: string): Promise<Session | undefined>{
+        const data = await SessionModel.findOne({where: {token}})
+        if(!data){
+            return undefined
+        }
+
+        return data.dataValues
+    }
+    async createSession (token: string, UserId: number): Promise<Session>{
+        const data = await SessionModel.create({token, UserId})
+        return data.dataValues
+    }
+    async deleteSession (id: number): Promise<boolean>{
+        return await SessionModel.destroy({where: {id}}) === 1
+    }
 }

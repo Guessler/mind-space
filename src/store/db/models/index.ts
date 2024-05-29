@@ -7,3 +7,11 @@ export const UserModel = db.define('User', {
     email: {type: DataTypes.TEXT, unique: true},
     password: {type: DataTypes.TEXT}
 })
+
+export const SessionModel = db.define('Session', {
+    id: {type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true},
+    token: {type: DataTypes.TEXT}
+})
+
+UserModel.hasMany(SessionModel)
+SessionModel.belongsTo(UserModel)

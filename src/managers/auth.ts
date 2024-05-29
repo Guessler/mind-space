@@ -1,6 +1,7 @@
 import { IAuthManager, IAuthStore } from "../interfaces/auth"
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcrypt'
+import { DecodedPayload } from "../types/user"
 
 export class AuthManager implements IAuthManager{
 
@@ -21,7 +22,32 @@ export class AuthManager implements IAuthManager{
     }
 
     async auth (token?: string): Promise<string>{
-        throw new Error("NOT_IMPLEMENTED")
+
+        if(!token){
+            throw new Error("UNATHORIZED")
+        }
+
+        const session = await this.authStore.getSession(token)
+        if(!session){
+            throw new Error("SESSION_NOT_FOUND")
+        }
+
+        try{
+            const decoded = jwt.decode(session.token) as DecodedPayload
+            if(decoded.id !== session.UserId){
+                await this.authStore.deleteSession(session.id)
+                throw new Error("UNATHORIZED")
+            }
+
+            await this.authStore.deleteSession(session.id)
+            const newGeneratedToken = this.generateToken(decoded.id, decoded.name, decoded.email)
+            await this.authStore.createSession(newGeneratedToken, session.UserId)
+
+            return newGeneratedToken
+        }catch(err){
+            await this.authStore.deleteSession(session.id)
+            throw new Error("UNATHORIZED")
+        }
     }
     async login (email?: string | undefined, password?: string | undefined): Promise<string>{
 
@@ -42,7 +68,7 @@ export class AuthManager implements IAuthManager{
             throw new Error("USER_WITH_THIS_EMAIL_NOT_FOUND")
         }
 
-        const isValidPassword = bcrypt.compareSync(currentUser.password, password)
+        const isValidPassword = bcrypt.compareSync(password, currentUser.password)
         if(!isValidPassword){
             throw new Error("INVALID_PASSWORD")
         }
@@ -50,6 +76,9 @@ export class AuthManager implements IAuthManager{
         const {id,name} = currentUser
 
         const token = this.generateToken(id,name, email)
+
+        await this.authStore.createSession(token, id)
+
         return token
     }
 
@@ -72,11 +101,11 @@ export class AuthManager implements IAuthManager{
 
     async regiter (name: string, email: string, password: string): Promise<boolean>{
         try{
+            // if(!this.IsValidEmail(password)){
+            //     throw new Error("INCORRECT_EMAIL")
+            // }
             if(!this.isValidPassword(password)){
                 throw new Error("INCORRECT_PASSWORD")
-            }
-            if(!this.IsValidEmail(password)){
-                console.error("INCORRECT_EMAIL")
             }
 
             const currentUser = await this.authStore.getUserByEmail(email)
