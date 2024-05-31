@@ -13,6 +13,9 @@ export type Session = {
     UserId: number
 }
 
-export type DecodedPayload = JwtPayload & {
+export type UserJwtPayload = {
     id: number; name: string; email: string;
+
 }
+
+export type DecodedPayload = JwtPayload & UserJwtPayload
