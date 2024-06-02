@@ -48,11 +48,23 @@ export class WorkspaceManager implements IWorkspaceManager{
     async remove (workspaceId: number, email: string, user: UserJwtPayload): Promise<boolean>{
 
         // Проверить - есть ли такой воркспей по айди (this.getWorkspaceById)
+        const workspace = await this.workSpaceStore.getWorkspaceById(workspaceId)
+        if(!workspace){
+            throw new Error("THIS_WORKSPACE_IS_ALREDY_THERE")
+        }
+        // there's a user with this e-mail
         // Проверить - есть ли пользователь с такой почтой (this.getUserByEmail)
+        const userToRemove = await this.getUserByEmail(email)
+        if(!userToRemove){
+            throw new Error("THERES_A_USER_WITH_THIS_EMAIL")
+        }
         // Проверить - что пользователь не является самим собой ( user: UserJwtPayload - это ты, который вызвал метод)
+        if(userToRemove.dataValues.id === user.id){
+            throw new Error("THIS_IS_YOU")
+        }
         // Если всё ок - вызываем метод (await this.workSpaceStore.remove(workspaceId, UserId) ), ГДЕ USERID это не ты, а тот, которого ты достал из this.getUserByEmail
-
-        throw new Error("not")
+        return await this.workSpaceStore.remove(workspaceId, userToRemove.dataValues.id);
+        // throw new Error("not")
     }
     
 }
