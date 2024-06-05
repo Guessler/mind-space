@@ -45,8 +45,21 @@ export class WorkspaceManager implements IWorkspaceManager{
     async changeRole (workspaceId: number, email: string, role: "owner" | "editor" | "viewer" | "guest", user: UserJwtPayload): Promise<boolean>{
 
         // Проверка на наличие воркспейса (см примеры remove)
+
+        const workspace = await this.workSpaceStore.getWorkspaceById(workspaceId)
+        if(!workspace){
+            throw new Error("THIS_WORKSPACE_IS_ALREDY_THERE")
+        }
         
         // Проверка наличия юзера и что это не ты сам
+
+        const userToUpdate = await this.getUserByEmail(email)
+        
+        if(userToUpdate?.dataValues.id === user.id){
+            throw new Error("THIS_IS_YOU")
+        }
+
+
 
         // Проверить себя из user: UserJwtPayload что у тебя есть права owner в workspace
 
@@ -58,7 +71,9 @@ export class WorkspaceManager implements IWorkspaceManager{
 
         // После всех проверок вызываепм смену ролей в store
 
-        throw new Error("not")
+        return await this.workSpaceStore.changeRole(workspaceId, userToUpdate?.dataValues.id, role);
+
+        // throw new Error("not")
     }
     async remove (workspaceId: number, email: string, user: UserJwtPayload): Promise<boolean>{
 
