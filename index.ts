@@ -19,27 +19,18 @@ const authStore = new AuthStore()
 const authManager = new AuthManager(authStore)
 
 
-// const user = {
-//     id: 10,
-//     name: "Yarik",
-//     email: "yarik1@mail.ru"
-// }
-
 const workspaceStore = new WorkSpaceStore()
 const workspaceManager = new WorkspaceManager(workspaceStore)
 
 
 app.use(Express.json())
 app.use(cors())
-app.use('/api', router(authManager))
+app.use('/api', router(authManager, workspaceManager))
 
 const start = async () => {
     try{
         await db.sync()
         app.listen(3001, () => console.log('server started')) 
-
-        // await workspaceManager.create("Personal yarik`s workspace", user)
-        // await workspaceManager.invite(1, "test12345@mail.ru", user)
     }catch(err){
         console.log(err)
     }

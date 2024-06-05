@@ -15,7 +15,6 @@ export type Session = {
 
 export type UserJwtPayload = {
     id: number; name: string; email: string;
-
 }
 
 export type DecodedPayload = JwtPayload & UserJwtPayload
