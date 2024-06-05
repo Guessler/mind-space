@@ -43,6 +43,21 @@ export class WorkspaceManager implements IWorkspaceManager{
         return await this.workSpaceStore.invite(workspaceId, userInvite.dataValues.id)
     }
     async changeRole (workspaceId: number, email: string, role: "owner" | "editor" | "viewer" | "guest", user: UserJwtPayload): Promise<boolean>{
+
+        // Проверка на наличие воркспейса (см примеры remove)
+        
+        // Проверка наличия юзера и что это не ты сам
+
+        // Проверить себя из user: UserJwtPayload что у тебя есть права owner в workspace
+
+        const owner = await this.workSpaceStore.getUserInfoById(workspaceId, user.id)
+        if(!owner || owner.role !== 'owner'){
+            throw new Error('ACCESS_DENIDED')
+        }
+
+
+        // После всех проверок вызываепм смену ролей в store
+
         throw new Error("not")
     }
     async remove (workspaceId: number, email: string, user: UserJwtPayload): Promise<boolean>{
