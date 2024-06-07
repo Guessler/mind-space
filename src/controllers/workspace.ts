@@ -31,5 +31,28 @@ export class WorkSpaceController{
     }
 
     // Сделать контроллеры invite, remove, changeRole
+        
+    async remove(req: AuthRequest,res: Response){
+        try{
+            const {workspaceId, email} = req.body
+            const payload = req.user
 
+            return res.json(await this.manager.remove(workspaceId, email, payload))
+        }catch(err){
+            const {message} = err as Error
+            return res.status(400).json({message})
+        }
+    }
+
+    async changeRole(req: AuthRequest, res: Response) {
+        try {
+            const { workspaceId, email, newRole } = req.body;
+            const payload = req.user;
+
+            return res.json(await this.manager.changeRole(workspaceId, email, newRole, payload));
+        } catch (err) {
+            const { message } = err as Error;
+            return res.status(400).json({ message });
+        }
+    }
 }
