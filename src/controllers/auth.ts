@@ -10,7 +10,7 @@ class AuthController{
             const token = req.headers.authorization?.split(' ')[1]
             const result = await this.authManager.auth(token)
 
-            return res.status(401).json({token: result })
+            return res.json({token: result })
         }catch(err){
             if((err as Error).message === 'AUTH_FAILED'){
                 return res.status(401).json({message: "Аутентификация провалена. Пожалуйста, авторизуйтесь заново."})
@@ -19,14 +19,13 @@ class AuthController{
             return res.status(400).json({message: (err as Error).message})
         }
     }
-
     async register(req: Request, res: Response){
         try{
 
             const {name, email, password} = req.body
             const result = await this.authManager.regiter(name, email, password)
 
-            return res.status(401).json({message: "USER_REGISTERED" })
+            return res.json({message: "USER_REGISTERED" })
         }catch(err){
             if((err as Error).message === 'AUTH_FAILED'){
                 return res.status(401).json({message: "Аутентификация провалена. Пожалуйста, авторизуйтесь заново."})
@@ -42,7 +41,7 @@ class AuthController{
             const { email, password} = req.body
             const result = await this.authManager.login(email, password)
 
-            return res.status(401).json(result)
+            return res.json(result)
         }catch(err){
             if((err as Error).message === 'AUTH_FAILED'){
                 return res.status(401).json({message: "Аутентификация провалена. Пожалуйста, авторизуйтесь заново."})

@@ -12,6 +12,8 @@ export const workspace = (workSpaceManager: IWorkspaceManager) => {
 
     router.post('/create', auth,(req: Request,res: Response) => controller.create(req as AuthRequest,res))
     router.post('/invite', auth,(req: Request,res: Response) => controller.invite(req as AuthRequest,res))
+    router.post('/remove', auth,(req: Request,res: Response) => controller.remove(req as AuthRequest,res))
+    router.post('/change-role', auth,(req: Request,res: Response) => controller.changeRole(req as AuthRequest,res))
     
     return router
 }
