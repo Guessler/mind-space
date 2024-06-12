@@ -59,7 +59,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 const start = async () => {
     try{
         await db.sync()
-        app.listen(3001, () => console.log('server started')) 
+        app.listen(3050, () => console.log('server started')) 
     }catch(err){
         console.log(err)
     }
