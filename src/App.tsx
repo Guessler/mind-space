@@ -1,9 +1,13 @@
-import Routes from "./consts/routes"
 import './App.css';
+import { AuthWrapper } from "./components/AuthWrapper";
+import { AuthRoutes } from './consts/routes';
+
 function App() {
   return (
     <div className="App">
-      <Routes/>
+      <AuthWrapper>
+        <AuthRoutes />
+      </AuthWrapper>
     </div>
   );
 }

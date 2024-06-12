@@ -2,21 +2,31 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { Home } from '../modules/Home';
 import SignIn from '../pages/SignIn'
 import SignUp from '../pages/SignUp'
-const router = createBrowserRouter([
+
+export enum Paths {
+  'SignIn'='/sign-in',
+  'SignUp'='/sign-up',
+  'Home'="/"
+}
+
+
+const authRouter = createBrowserRouter([
     {
-      path: '/',
+      path: Paths.Home,
       element: <Home />
     },
-    {
-      path: '/SignIn',
-      element: <SignIn />
-    },
-    {
-      path: '/SignUp',
-      element: <SignUp />
-    }
-  ]);
+]);
+
+const publicRouter = createBrowserRouter([
+  {
+    path: Paths.SignIn,
+    element: <SignIn />
+  },
+  {
+    path: Paths.SignUp,
+    element: <SignUp />
+  }
+])
   
-  const Routes = () => <RouterProvider router={router} />;
-  
-  export default Routes;
+export const AuthRoutes = () => <RouterProvider router={authRouter} />;
+export const PublicRoutes = () => <RouterProvider router={publicRouter} />;

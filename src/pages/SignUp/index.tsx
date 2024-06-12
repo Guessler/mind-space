@@ -23,6 +23,11 @@ const SignUp: React.FC = () => {
       setError('All fields are required');
       return;
     }
+
+    // 1. Делать запрос authService.register
+    // 2. Обработать также все ошибки (Посмотреть в беке и перевести на русский читаемый) (обработчик смотреть в SignIn)
+    // 3. Редирект на SignIn страницу, если регистрация прошла успешно
+
     // Add registration logic here
     console.log('Username:', username);
     console.log('Email:', email);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import {
   Button,
   TextField,
@@ -9,25 +9,50 @@ import {
   Link as MuiLink,
 } from '@mui/material';
 import { Link, useNavigate } from 'react-router-dom';
+import { authService } from '../../services/auth';
+import { AxiosError, AxiosResponse } from 'axios';
+import { ErrorMessageDto } from '../../types/error';
+import { Paths } from '../../consts/routes';
+import {observer} from 'mobx-react-lite'
+import { context } from '../..';
 
-const SignIn: React.FC = () => {
+const SignIn: React.FC = observer(() => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<string>('');
   const navigate = useNavigate();
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const ctx = useContext(context)
+
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (email === '' || password === '') {
       setError('All fields are required');
       return;
     }
-    // Add authentication logic here
-    console.log('Email:', email);
-    console.log('Password:', password);
     setError('');
-    // Navigate to another page after successful sign in
-    navigate('/dashboard');
+    
+    try{
+      const result = await authService.login(email, password)
+      if(!result){
+        throw new Error("SOMETHING_WENT_WRONG")
+      }
+
+      localStorage.setItem('token', result)
+      ctx?.authStore?.setIsAuth(true)
+      navigate(Paths.Home)
+    }catch(err){
+      if(!err || !(err as AxiosError) || !(err as AxiosError)?.response){
+        setError('Что-то пошло не так...');
+      }
+      const {message} = ((err as AxiosError).response as AxiosResponse).data as ErrorMessageDto
+      if(message === "INCORRECT_PASSWORD"){
+        setError('Неверный пароль');
+      }
+      if(message === "USER_WITH_THIS_EMAIL_NOT_FOUND"){
+        setError('Пользователь с дан ой почтой не найден в системе');
+      }
+    }
   };
 
   return (
@@ -43,10 +68,7 @@ const SignIn: React.FC = () => {
                 variant="outlined"
                 required
                 fullWidth
-                id="email"
-                label="Email Address"
-                name="email"
-                autoComplete="email"
+                label="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
@@ -56,11 +78,8 @@ const SignIn: React.FC = () => {
                 variant="outlined"
                 required
                 fullWidth
-                name="password"
                 label="Password"
                 type="password"
-                id="password"
-                autoComplete="current-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
@@ -95,6 +114,6 @@ const SignIn: React.FC = () => {
       </Paper>
     </Container>
   );
-};
+})
 
 export default SignIn;
