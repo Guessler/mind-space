@@ -1,7 +1,8 @@
 import { IWorkspaceStore } from "../interfaces/workspace";
+import { List } from "../types";
 import { UserJwtPayload } from "../types/user";
 import { UserWorkspaceInfoDto, WorkspaceDto } from "../types/workspace";
-import { WorkspaceModel, WorkspaceUserModel } from "./db/models";
+import { UserModel, WorkspaceModel, WorkspaceUserModel } from "./db/models";
 
 export class WorkSpaceStore implements IWorkspaceStore{
     async create (name: string, user: UserJwtPayload): Promise<WorkspaceDto>{
@@ -31,8 +32,23 @@ export class WorkSpaceStore implements IWorkspaceStore{
 
     async getUserInfoById (workspaceId: number,userId: number) : Promise<UserWorkspaceInfoDto | undefined>{
         const data = await WorkspaceUserModel.findOne({where: {UserId: userId, WorkspaceId: workspaceId}})
-        console.log(data)
         return data?.dataValues
+    }
+
+    async getWorkspacesByUserId (page: number, limit: number,userId: number): Promise<List<WorkspaceDto>>{
+
+        const offset = page * limit - limit
+
+        const data = await WorkspaceModel.findAndCountAll({
+            include: [{
+                model: UserModel,
+                where: { id: userId }
+            }],
+            limit,
+            offset
+        })
+
+        return {count: data.count, rows: data.rows.map(row => row.dataValues)}
     }
 
 

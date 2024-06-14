@@ -1,3 +1,4 @@
+import { List } from "../types";
 import { UserJwtPayload } from "../types/user";
 import { UserWorkspaceInfoDto, WorkspaceDto, WorkspaceRoles } from "../types/workspace";
 
@@ -8,6 +9,7 @@ export interface IWorkspaceStore{
     remove: (workspaceId: number, userId: number) => Promise<boolean>;
     getWorkspaceById: (workspaceId: number) => Promise<WorkspaceDto | undefined>;
     getUserInfoById: (workspaceId: number,userId: number) => Promise<UserWorkspaceInfoDto | undefined>;
+    getWorkspacesByUserId: (page: number, limit: number,userId: number) => Promise<List<WorkspaceDto>>
 }
 
 export interface IWorkspaceManager{
@@ -15,5 +17,6 @@ export interface IWorkspaceManager{
     invite: (workspaceId: number, email: string, user: UserJwtPayload) => Promise<boolean>; 
     changeRole: (workspaceId: number, email: string, role:  keyof typeof WorkspaceRoles, user: UserJwtPayload) => Promise<boolean>;
     remove: (workspaceId: number, email: string, user: UserJwtPayload) => Promise<boolean>;
+    myWorkspaces: (page: number, limit: number, user: UserJwtPayload) => Promise<List<WorkspaceDto>>
 }
 

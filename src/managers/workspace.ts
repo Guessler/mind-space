@@ -1,6 +1,7 @@
 
 import { IWorkspaceManager, IWorkspaceStore } from "../interfaces/workspace";
 import { UserModel } from "../store/db/models";
+import { List } from "../types";
 import { UserJwtPayload } from "../types/user";
 import { WorkspaceDto } from "../types/workspace";
 
@@ -79,5 +80,11 @@ export class WorkspaceManager implements IWorkspaceManager{
         
         return await this.workSpaceStore.remove(workspaceId, userToRemove.dataValues.id);
     }
+
+    async myWorkspaces (page: number, limit: number, user: UserJwtPayload): Promise<List<WorkspaceDto>>{
+        return await this.workSpaceStore.getWorkspacesByUserId(page, limit, user.id)
+    }
+
+    
     
 }

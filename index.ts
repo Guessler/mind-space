@@ -8,7 +8,6 @@ import Express from 'express'
 import cors from 'cors'
 const app = Express()
 
-
 import router from './src/routes'
 import { AuthManager } from './src/managers/auth'
 import { AuthStore } from './src/store/auth'

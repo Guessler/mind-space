@@ -150,5 +150,7 @@ export const workspace = (workSpaceManager: IWorkspaceManager) => {
      */
     router.post('/change-role', auth, (req: Request, res: Response) => controller.changeRole(req as AuthRequest, res))
 
+    router.get('/my-workspaces', auth, (req: Request, res: Response) => controller.myWorkspaces(req as AuthRequest, res))
+
     return router
 }

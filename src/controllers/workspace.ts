@@ -55,4 +55,16 @@ export class WorkSpaceController{
             return res.status(400).json({ message });
         }
     }
+
+    async myWorkspaces(req: AuthRequest, res: Response){
+        try {
+            const {page,limit} = req.query
+            const payload = req.user;
+
+            return res.json(await this.manager.myWorkspaces(Number(page), Number(limit),payload));
+        } catch (err) {
+            const { message } = err as Error;
+            return res.status(400).json({ message });
+        }
+    }
 }
