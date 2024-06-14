@@ -25,23 +25,24 @@ const SignUp: React.FC = () => {
       setError('All fields are required');
       return;
     }
-
-    // 1. Делать запрос authService.register
     
     try{
+      // если у тебя переменная не меняется, или ты её не меняешь - пиши const
       let result = await authService.register(username, email, password)
       if(!result){
-        throw new Error("INCORRECT_PASSWORD")
+        throw new Error("INCORRECT_PASSWORD") // Убрать!
       }
-      // <Navigate to="/"/>
-      navigate("/")
+      navigate("/") // Ок, но поменять строку на значение из Paths (enum) и сделать редирект на SignIn страницу
     }
     catch (err){
+
+      // Проставлять отсюда ошибки из запроса err (смотреть SignIn пример)
+      
       console.error(err)
       return false
     }
-    // 2. Обработать также все ошибки (Посмотреть в беке и перевести на русский читаемый) (обработчик смотреть в SignIn)
-    // 3. Редирект на SignIn страницу, если регистрация прошла успешно
+
+  // Убрать все логи и navigate, т.к. ты его вызываешь в try. setError('') вызывать после result 
 
     // Add registration logic here
     console.log('Username:', username);

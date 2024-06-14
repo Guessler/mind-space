@@ -9,7 +9,6 @@ export enum Paths {
   'Home'="/"
 }
 
-
 const authRouter = createBrowserRouter([
     {
       path: Paths.Home,
