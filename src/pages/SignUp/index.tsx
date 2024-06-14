@@ -8,7 +8,9 @@ import {
   Container,
   Link as MuiLink,
 } from '@mui/material';
-import { Link, useNavigate } from 'react-router-dom';
+import { authService } from '../../services/auth';
+
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 
 const SignUp: React.FC = () => {
   const [username, setUsername] = useState<string>('');
@@ -17,7 +19,7 @@ const SignUp: React.FC = () => {
   const [error, setError] = useState<string>('');
   const navigate = useNavigate();
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit =  async (event: React.FormEvent) => {
     event.preventDefault();
     if (username === '' || email === '' || password === '') {
       setError('All fields are required');
@@ -25,6 +27,19 @@ const SignUp: React.FC = () => {
     }
 
     // 1. Делать запрос authService.register
+    
+    try{
+      let result = await authService.register(username, email, password)
+      if(!result){
+        throw new Error("INCORRECT_PASSWORD")
+      }
+      // <Navigate to="/"/>
+      navigate("/")
+    }
+    catch (err){
+      console.error(err)
+      return false
+    }
     // 2. Обработать также все ошибки (Посмотреть в беке и перевести на русский читаемый) (обработчик смотреть в SignIn)
     // 3. Редирект на SignIn страницу, если регистрация прошла успешно
 
@@ -34,8 +49,9 @@ const SignUp: React.FC = () => {
     console.log('Password:', password);
     setError('');
     // Navigate to another page after successful registration
-    navigate('/signin');
+    navigate('/sign-in');
   };
+
 
   return (
     <Container component="main" maxWidth="xs">
