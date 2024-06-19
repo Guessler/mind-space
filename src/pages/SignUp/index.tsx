@@ -10,6 +10,7 @@ import {
 } from '@mui/material';
 import { authService } from '../../services/auth';
 
+import { Paths } from '../../consts/routes';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 
 const SignUp: React.FC = () => {
@@ -17,6 +18,7 @@ const SignUp: React.FC = () => {
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [error, setError] = useState<string>('');
+
   const navigate = useNavigate();
 
   const handleSubmit =  async (event: React.FormEvent) => {
@@ -27,30 +29,22 @@ const SignUp: React.FC = () => {
     }
     
     try{
-      // если у тебя переменная не меняется, или ты её не меняешь - пиши const
-      let result = await authService.register(username, email, password)
+      const result = await authService.register(username, email, password)
       if(!result){
         throw new Error("INCORRECT_PASSWORD") // Убрать!
       }
-      navigate("/") // Ок, но поменять строку на значение из Paths (enum) и сделать редирект на SignIn страницу
+      setError('')
+      navigate(Paths.SignIn)
     }
     catch (err){
-
-      // Проставлять отсюда ошибки из запроса err (смотреть SignIn пример)
-      
+      if (err instanceof Error) {
+        setError(err.message || 'An error occurred during registration');
+      } else {
+        setError('An unknown error occurred');
+      }
       console.error(err)
-      return false
     }
 
-  // Убрать все логи и navigate, т.к. ты его вызываешь в try. setError('') вызывать после result 
-
-    // Add registration logic here
-    console.log('Username:', username);
-    console.log('Email:', email);
-    console.log('Password:', password);
-    setError('');
-    // Navigate to another page after successful registration
-    navigate('/sign-in');
   };
 
 
@@ -119,7 +113,7 @@ const SignUp: React.FC = () => {
             </Grid>
             <Grid item xs={12}>
               <Typography variant="body2" align="center">
-                <MuiLink component={Link} to="../SignIn" variant="body2">
+                <MuiLink component={Link} to={Paths.SignIn} variant="body2">
                   {"Already have an account? Sign In"}
                 </MuiLink>
               </Typography>

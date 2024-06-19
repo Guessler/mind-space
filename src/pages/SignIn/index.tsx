@@ -101,7 +101,7 @@ const SignIn: React.FC = observer(() => {
             </Grid>
             <Grid item xs={12}>
               <Typography variant="body2" align="center">
-                <MuiLink component={Link} to="../SignUp" variant="body2">
+                <MuiLink component={Link} to={Paths.SignUp} variant="body2">
                   {"Don't have an account? Register"}
                 </MuiLink>
               </Typography>
