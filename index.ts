@@ -16,6 +16,7 @@ import db from './src/store/db'
 import './src/store/db/models'
 import { WorkSpaceStore } from './src/store/workspace'
 import { WorkspaceManager } from './src/managers/workspace'
+import { WebsocketManager } from './src/managers/websockets'
 
 
 const authStore = new AuthStore()
@@ -23,6 +24,8 @@ const authManager = new AuthManager(authStore)
 
 const workspaceStore = new WorkSpaceStore()
 const workspaceManager = new WorkspaceManager(workspaceStore)
+
+const webSocketManager = new WebsocketManager(app)
 
 
 const options = {
@@ -58,6 +61,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs));
 const start = async () => {
     try{
         await db.sync()
+        await webSocketManager.init()
         app.listen(3050, () => console.log('server started')) 
     }catch(err){
         console.log(err)

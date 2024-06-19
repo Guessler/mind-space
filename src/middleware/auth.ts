@@ -37,3 +37,29 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
         return res.status(401).json({message: "UNAUTHORIZED"})
     }
 }
+
+export const authSocket = async (req: Request): Promise<boolean> => {
+
+    if(!req.query.token){
+        return false
+    }
+
+    const token = req.query.token
+    if(!token){
+        return false
+    }
+
+    const session = await SessionModel.findOne({where: {token}})
+    if(!session){
+        return false
+    }
+    
+    try{
+        const decoded = jwt.decode(token as string) as DecodedPayload
+        (req as AuthRequest).user = decoded
+        return true
+
+    }catch(err){
+        return false
+    }
+}
