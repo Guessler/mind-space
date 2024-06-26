@@ -1,12 +1,12 @@
-import { Typography } from "@mui/material"
 import { BaseLayout } from "../../layout/base"
 import { Workspaces } from "./components/Workspaces"
+import { Text } from "../../components/form/Text"
 
 export const Home = () => {
 
     return (
         <BaseLayout>
-            <Typography variant="h2">Wellcome, username!</Typography>
+            <Text variant='bold'>Wellcome, username!</Text>
             <Workspaces />
         </BaseLayout>   
     )

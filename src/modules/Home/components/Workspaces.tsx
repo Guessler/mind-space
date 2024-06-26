@@ -1,26 +1,19 @@
 import { Box, Card, Typography } from "@mui/material"
 import "./Workspaces.css"
 import { useState } from "react"
+import useSWR from "swr"
+import { workspaceService } from "../../../services/workspace.service"
 
 export const Workspaces = () => {
     const [isPopupVisible, setIsPopupVisible] = useState(false)
-    const [workspaces, setWorkspaces] = useState([
-        {
-            id: 1,
-            name: "Workspace #1"
-        },
-        {
-            id: 2,
-            name: "Workspace #2"
-        },
-    ])
-    const [newWorkspaceName, setNewWorkspaceName] = useState("")
+    const { data, isLoading, mutate } = useSWR('my-workspaces', () => workspaceService.myWorkspaces({page: 1, limit: 10}))
+    const [name, setName] = useState("")
 
-    function handleOpen(){
+    const handleOpen = () => { 
         setIsPopupVisible(true)
     }
 
-    function handleClose(){
+    const handleClose = () => {
         setIsPopupVisible(false)
     }
 
@@ -28,17 +21,31 @@ export const Workspaces = () => {
         e.stopPropagation();       
     }
 
-    function handleCreate(){
-        if (newWorkspaceName.trim() !== "") {
-            setWorkspaces([...workspaces, { id: workspaces.length + 1, name: newWorkspaceName }])
-            setNewWorkspaceName("")
+    const handleCreate = async () => {
+        try{
+            if (name.trim() === "") {
+                return
+            }
+
+            const data = await workspaceService.create(name)
+            setName("")
             handleClose()
+
+            mutate()
+
+            alert(`ID: ${data.id}`)
+        }catch(err){
+            console.error(err)
         }
     }
 
+    if(isLoading){
+        return null
+    }
+
     return (
-        <Box sx={{width: '100%', display: 'flex', flexDirection: 'row', gap: 10}}>
-            {workspaces.map(item =>
+        <Box sx={{width: '100%', display: 'flex', flexDirection: 'row', gap: 10, flexWrap: 'wrap'}}>
+            {data?.rows.map((item) =>
                 <Card sx={{width: '240px', display: 'flex', flexDirection: 'column',flexWrap:"wrap", gap: 5, padding: '12px 10px'}} key={item.id}>
                     <Box sx={{width: '100%', height: '10rem', background: 'grey'}}></Box>
                     <Typography variant="h4">{item.name}</Typography>
@@ -56,7 +63,7 @@ export const Workspaces = () => {
                         <Typography sx={{fontSize:'24px', fontWeight:"700"}}>Введите название Workspace!</Typography>
                         <Box sx={{display:"flex", flexDirection:'column', gap:'20px'}}>
                             <Typography>Введите название workspace:</Typography>
-                            <input className="main-input" type="text" value={newWorkspaceName} onChange={(e) => setNewWorkspaceName(e.target.value)} />
+                            <input className="main-input" type="text" value={name} onChange={(e) => setName(e.target.value)} />
                             <Typography>Добавьте друзей:</Typography>
                             <input className="main-input" type="text" />
                         </Box>
