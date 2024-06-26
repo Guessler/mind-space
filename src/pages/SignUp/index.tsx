@@ -9,9 +9,11 @@ import {
   Link as MuiLink,
 } from '@mui/material';
 import { authService } from '../../services/auth';
+import { AxiosError, AxiosResponse } from 'axios';
+import { ErrorMessageDto } from '../../types/error';
 
 import { Paths } from '../../consts/routes';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const SignUp: React.FC = () => {
   const [username, setUsername] = useState<string>('');
@@ -29,22 +31,32 @@ const SignUp: React.FC = () => {
     }
     
     try{
-      const result = await authService.register(username, email, password)
-      if(!result){
-        throw new Error("INCORRECT_PASSWORD") // Убрать!
-      }
+      await authService.register(username, email, password)
       setError('')
       navigate(Paths.SignIn)
     }
     catch (err){
-      if (err instanceof Error) {
-        setError(err.message || 'An error occurred during registration');
-      } else {
-        setError('An unknown error occurred');
+      if(!err || !(err as AxiosError) || !(err as AxiosError)?.response){
+        setError('Что-то пошло не так...');
       }
-      console.error(err)
-    }
+      const {message} = ((err as AxiosError).response as AxiosResponse).data as ErrorMessageDto
+      if(message === "INCORRECT_PASSWORD"){
+        setError('Неверный пароль');
+      }
+      if(message === "INCORRECT_EMAIL"){
+        setError('Неверный email');
+      }
+      if(message === "USER_WITH_THIS_EMAIL_IS_EXISTS"){
+        setError('User с данным email уже есть');
+      }
 
+      // if (err instanceof Error) {
+      //   setError(err.message || 'An error occurred during registration');
+      // } else {
+      //   setError('An unknown error occurred');
+      // }
+      // console.error(err)
+    }
   };
 
 

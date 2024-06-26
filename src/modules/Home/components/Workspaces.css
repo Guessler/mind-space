@@ -1,0 +1,27 @@
+.main-input{
+    width: 300px;
+    height: 40px;
+
+    border-radius: 15px;
+
+    border: 1px solid rgba(102, 102, 102, 0.534);
+}
+.main-btn{
+    width: 250px;
+    height: 60px;
+
+    background-color: #6BB8FF;
+
+    border-radius: 15px;
+    border: none;
+    
+    transition: 0.3s all;
+
+    cursor: pointer;
+
+    color: white;
+}
+.main-btn:hover{
+    background-color: #1d90fc;
+
+}

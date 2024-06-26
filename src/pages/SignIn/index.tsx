@@ -50,7 +50,7 @@ const SignIn: React.FC = observer(() => {
         setError('Неверный пароль');
       }
       if(message === "USER_WITH_THIS_EMAIL_NOT_FOUND"){
-        setError('Пользователь с дан ой почтой не найден в системе');
+        setError('Пользователь с данной почтой не найден в системе');
       }
     }
   };
