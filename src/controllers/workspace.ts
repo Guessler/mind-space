@@ -67,4 +67,16 @@ export class WorkSpaceController{
             return res.status(400).json({ message });
         }
     }
+    
+    async getById(req: AuthRequest, res: Response){
+        try {
+            const {id} = req.params
+            const payload = req.user;
+
+            return res.json(await this.manager.getById(Number(id), payload));
+        } catch (err) {
+            const { message } = err as Error;
+            return res.status(400).json({ message });
+        }
+    }
 }

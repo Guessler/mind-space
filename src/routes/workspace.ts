@@ -152,5 +152,7 @@ export const workspace = (workSpaceManager: IWorkspaceManager) => {
 
     router.get('/my-workspaces', auth, (req: Request, res: Response) => controller.myWorkspaces(req as AuthRequest, res))
 
+    router.get('/:id', auth, (req: Request, res: Response) => controller.getById(req as AuthRequest, res))
+
     return router
 }

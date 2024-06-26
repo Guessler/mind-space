@@ -85,6 +85,11 @@ export class WorkspaceManager implements IWorkspaceManager{
         return await this.workSpaceStore.getWorkspacesByUserId(page, limit, user.id)
     }
 
+    async getById (id: number, user: UserJwtPayload): Promise<WorkspaceDto | undefined>{
+        const data = await this.workSpaceStore.getWorkspaceById(id)
+
+        return data
+    }
     
     
 }

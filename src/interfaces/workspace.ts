@@ -18,5 +18,6 @@ export interface IWorkspaceManager{
     changeRole: (workspaceId: number, email: string, role:  keyof typeof WorkspaceRoles, user: UserJwtPayload) => Promise<boolean>;
     remove: (workspaceId: number, email: string, user: UserJwtPayload) => Promise<boolean>;
     myWorkspaces: (page: number, limit: number, user: UserJwtPayload) => Promise<List<WorkspaceDto>>
+    getById: (id: number, user: UserJwtPayload) => Promise<WorkspaceDto | undefined>
 }
 

@@ -19,7 +19,7 @@ export const auth = async (req: Request, res: Response, next: NextFunction) => {
         if(!session){
             return res.status(401).json({message: "UNAUTHORIZED"})
         }
-        
+    
         try{
             const decoded = jwt.decode(token) as DecodedPayload
             (req as AuthRequest).user = decoded
