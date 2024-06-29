@@ -152,6 +152,25 @@ export const workspace = (workSpaceManager: IWorkspaceManager) => {
 
     router.get('/my-workspaces', auth, (req: Request, res: Response) => controller.myWorkspaces(req as AuthRequest, res))
 
+    /**
+     * @swagger
+     * /api/workspace/:id:
+     *   get:
+     *     summary: Получение воркспейса по айди
+     *     tags: [Workspace]
+     *     security:
+     *       - bearerAuth: []
+     *     responses:
+     *       200:
+     *         description: Получение воркспейса
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: object
+     *               properties:
+     *                 message:
+     *                   type: string
+     */
     router.get('/:id', auth, (req: Request, res: Response) => controller.getById(req as AuthRequest, res))
 
     return router
