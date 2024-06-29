@@ -2,17 +2,23 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { Home } from '../modules/Home';
 import SignIn from '../pages/SignIn'
 import SignUp from '../pages/SignUp'
+import { WorkspacePage } from '../pages/Workspace';
 
 export enum Paths {
   'SignIn'='/sign-in',
   'SignUp'='/sign-up',
-  'Home'="/"
+  'Home'="/",
+  'Workspace'="/:id"
 }
 
 const authRouter = createBrowserRouter([
     {
       path: Paths.Home,
       element: <Home />
+    },
+    {
+      path: Paths.Workspace,
+      element: <WorkspacePage />
     },
 ]);
 

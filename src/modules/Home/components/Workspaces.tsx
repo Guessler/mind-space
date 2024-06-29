@@ -3,8 +3,12 @@ import "./Workspaces.css"
 import { useState } from "react"
 import useSWR from "swr"
 import { workspaceService } from "../../../services/workspace.service"
+import { useNavigate } from "react-router-dom"
 
 export const Workspaces = () => {
+
+    const navigate = useNavigate()
+
     const [isPopupVisible, setIsPopupVisible] = useState(false)
     const { data, isLoading, mutate } = useSWR('my-workspaces', () => workspaceService.myWorkspaces({page: 1, limit: 10}))
     const [name, setName] = useState("")
@@ -46,7 +50,7 @@ export const Workspaces = () => {
     return (
         <Box sx={{width: '100%', display: 'flex', flexDirection: 'row', gap: 10, flexWrap: 'wrap'}}>
             {data?.rows.map((item) =>
-                <Card sx={{width: '240px', display: 'flex', flexDirection: 'column',flexWrap:"wrap", gap: 5, padding: '12px 10px'}} key={item.id}>
+                <Card onClick={() => navigate(`/${item.id}`)} sx={{width: '240px', display: 'flex', flexDirection: 'column',flexWrap:"wrap", gap: 5, padding: '12px 10px'}} key={item.id}>
                     <Box sx={{width: '100%', height: '10rem', background: 'grey'}}></Box>
                     <Typography variant="h4">{item.name}</Typography>
                 </Card>

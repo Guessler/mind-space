@@ -22,7 +22,17 @@ const create = async (name: string): Promise<WorkspaceDto> => {
     return data
 }
 
+const getById = async (id: string): Promise<WorkspaceDto> => {
+    const {data} = await $auth_http.get(`${BASE_URl}/${id}`, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`
+        },
+    })
+    return data
+}
+
 export const workspaceService = {
     myWorkspaces,
-    create
+    create,
+    getById
 }
