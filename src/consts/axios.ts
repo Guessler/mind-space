@@ -10,3 +10,7 @@ export const $auth_http = axios.create({
         Authorization: `Bearer ${localStorage.getItem('token')}`
     }
 })
+
+export const $unsplesh_http = axios.create({
+    baseURL: "https://api.unsplash.com/photos/?client_id=YOUR_ACCESS_KEY"
+})

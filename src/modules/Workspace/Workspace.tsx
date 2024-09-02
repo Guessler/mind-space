@@ -23,7 +23,12 @@ export const Workspace = () => {
 
     return (
         <BaseLayout>
-            <Typography variant="h3">{data?.name}</Typography>
+            <Typography sx={{ 
+                    fontSize: 40, 
+                    fontWeight: "900", 
+                    fontFamily: 'Unbounded, sans-serif',
+                    color:"#394D70"
+                }}  variant="h3">{data?.name}</Typography>
         </BaseLayout>
     )
 }
