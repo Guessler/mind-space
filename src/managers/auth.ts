@@ -95,15 +95,14 @@ export class AuthManager implements IAuthManager{
             specialCharacterPattern.test(password)
     }
     public IsValidEmail(email:string): boolean {
-        const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        const emailPattern = /^(([^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*)|(".+"))@(([^<>()[\].,;:\s@"]+\.)+[^<>()[\].,;:\s@"]{2,})$/iu;
         return emailPattern.test(email);
     }
 
     async regiter (name: string, email: string, password: string): Promise<boolean>{
-        try{
-            // if(!this.IsValidEmail(password)){
-            //     throw new Error("INCORRECT_EMAIL")
-            // }
+            if(!this.IsValidEmail(email)){
+                throw new Error("INCORRECT_EMAIL")
+            }
             if(!this.isValidPassword(password)){
                 throw new Error("INCORRECT_PASSWORD")
             }
@@ -117,9 +116,6 @@ export class AuthManager implements IAuthManager{
             await this.authStore.register(name, email,hashPassword)
     
             return true
-        }catch(err){
-            console.error(err)
-            return false
-        }
+        
     }
 }

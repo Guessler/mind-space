@@ -15,16 +15,15 @@ class AuthController{
             if((err as Error).message === 'AUTH_FAILED'){
                 return res.status(401).json({message: "Аутентификация провалена. Пожалуйста, авторизуйтесь заново."})
             }
-
             return res.status(400).json({message: (err as Error).message})
         }
     }
     async register(req: Request, res: Response){
         try{
-
             const {name, email, password} = req.body
-            const result = await this.authManager.regiter(name, email, password)
+            await this.authManager.regiter(name, email, password)
 
+            // return res.json({token: result })
             return res.json({message: "USER_REGISTERED" })
         }catch(err){
             if((err as Error).message === 'AUTH_FAILED'){
