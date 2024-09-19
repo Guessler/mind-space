@@ -33,13 +33,13 @@ export const Workspaces = () => {
                 return
             }
 
-            const data = await workspaceService.create(name)
+            await workspaceService.create(name)
             setName("")
             handleClose()
 
             mutate()
 
-            alert(`ID: ${data.id}`)
+            // alert(`ID: ${data.id}`)
         }catch(err){
             console.error(err)
         }
@@ -50,7 +50,7 @@ export const Workspaces = () => {
     }
 
     return (
-        <Box sx={{width: '1200px', display: 'flex', flexDirection: 'row', gap: "65px", flexWrap: 'wrap', marginTop: "76px"}}>
+        <Box sx={{width: '100%', display: 'flex', flexDirection: 'row', gap: "60px", flexWrap: 'wrap', marginTop: "76px"}}>
             {data?.rows.map((item) =>
                 <Card onClick={() => navigate(`/${item.id}`)} sx={{width: '240px',minHeight: "250px", display: 'flex', flexDirection: 'column',alignItems:"center", gap: "10px",}} key={item.id}>
                     <Box sx={{width: '100%', height: '10rem', background: '#526382', opacity:"0.7", display: "flex", alignItems: "center", justifyContent:"center"}}></Box>
