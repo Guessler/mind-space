@@ -62,7 +62,7 @@ const start = async () => {
     try{
         await db.sync()
         await webSocketManager.init()
-        app.listen(3050, () => console.log('server started')) 
+        app.listen(8080, () => console.log('server started')) 
     }catch(err){
         console.log(err)
     }
