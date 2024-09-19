@@ -10,7 +10,8 @@ import {
   Box,
 } from '@mui/material';
 // import wallpaper from "../../assets/wallpaper.jpg";
-import pinball from "../../assets/pinball.png";
+// import pinball from "../../assets/pinball.png";
+import park from "../../assets/park.png"
 import { Link, useNavigate } from 'react-router-dom';
 import { authService } from '../../services/auth';
 import { AxiosError, AxiosResponse } from 'axios';
@@ -62,7 +63,7 @@ const SignIn: React.FC = observer(() => {
     <Box sx={{
       width: "100%",
       height: "100vh",
-      backgroundImage: `url(${pinball})`,
+      backgroundImage: `url(${park})`,
       backgroundRepeat: "no-repeat",
       backgroundSize: "cover",
       display: "flex",
