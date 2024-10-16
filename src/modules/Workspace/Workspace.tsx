@@ -36,7 +36,7 @@ export const Workspace = () => {
         <>
             <Box sx={{
                  width: "100%", 
-                 height: "350px", 
+                 height: "300px", 
                  backgroundImage: `url(${blood})`,
                  backgroundSize: 'cover',
             }}></Box>

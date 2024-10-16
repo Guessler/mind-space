@@ -9,7 +9,7 @@ import {
   Link as MuiLink,
   Box,
 } from '@mui/material';
-import wallpaper from "../../assets/wallpaper.jpg";
+import wallpaper from "../../assets/logwallpaper.png";
 import { authService } from '../../services/auth';
 import { AxiosError, AxiosResponse } from 'axios';
 import { ErrorMessageDto } from '../../types/error';

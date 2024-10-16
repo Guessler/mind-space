@@ -1,9 +1,7 @@
 import { BaseLayout } from "../../layout/base"
 import { Workspaces } from "./components/Workspaces"
 import { Typography } from "@mui/material"
-
 export const Home = () => {
-
     return (
         <BaseLayout>
                 <Typography
@@ -27,7 +25,7 @@ export const Home = () => {
                         color: "#394D70"
                     }}
                 >
-                    Username!
+                    Username
                 </Typography>
                 <Workspaces />
         </BaseLayout>

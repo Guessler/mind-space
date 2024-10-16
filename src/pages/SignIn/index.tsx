@@ -9,9 +9,7 @@ import {
   Link as MuiLink,
   Box,
 } from '@mui/material';
-// import wallpaper from "../../assets/wallpaper.jpg";
-// import pinball from "../../assets/pinball.png";
-import park from "../../assets/park.png"
+import nightWallpaper from "../../assets/darklogwallpaper.png"
 import { Link, useNavigate } from 'react-router-dom';
 import { authService } from '../../services/auth';
 import { AxiosError, AxiosResponse } from 'axios';
@@ -63,7 +61,7 @@ const SignIn: React.FC = observer(() => {
     <Box sx={{
       width: "100%",
       height: "100vh",
-      backgroundImage: `url(${park})`,
+      backgroundImage: `url(${nightWallpaper})`,
       backgroundRepeat: "no-repeat",
       backgroundSize: "cover",
       display: "flex",
