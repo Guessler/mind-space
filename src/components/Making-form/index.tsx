@@ -1,1 +1,1 @@
-export {MakingBlock} from './MalingBlock'
+export {MakingBlock} from './MakingBlock'

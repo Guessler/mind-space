@@ -3,59 +3,97 @@ import { ReactNode, useEffect, useRef, useState } from "react";
 import cross from "../../assets/cross.svg";
 import { Popup } from "../Popup";
 
+interface Card {
+  id: number;
+  taskName: string;
+  taskDescription: string;
+  selectedImage: string | null;
+}
+
 interface MakingBlockProps {
   children?: ReactNode;
 }
 
 export const MakingBlock: React.FC<MakingBlockProps> = ({ children }) => {
-  const [addCard, setAddCard] = useState<boolean>(false);
-  const [newInput, setNewInput] = useState<boolean>(false);
-  const [taskName, setTaskName] = useState<string>('Write the name of the task');
-  const [taskDescription, setTaskDescription] = useState<string>('Write what you need to do');
-  const [editDescription, setEditDescription] = useState<boolean>(false);
+  const [cards, setCards] = useState<Card[]>([]);
+  const [newInputId, setNewInputId] = useState<number | null>(null);
+  const [editDescriptionId, setEditDescriptionId] = useState<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const descriptionInputRef = useRef<HTMLInputElement>(null);
   const [showPopup, setShowPopup] = useState<boolean>(false);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null); // Для хранения выбранного изображения
+  const [currentCardId, setCurrentCardId] = useState<number | null>(null);
 
   useEffect(() => {
-    if (newInput && inputRef.current) {
+    if (newInputId !== null && inputRef.current) {
       inputRef.current.focus();
     }
-  }, [newInput]);
+  }, [newInputId]);
 
   useEffect(() => {
-    if (editDescription && descriptionInputRef.current) {
+    if (editDescriptionId !== null && descriptionInputRef.current) {
       descriptionInputRef.current.focus();
     }
-  }, [editDescription]);
+  }, [editDescriptionId]);
 
   const handleBlurTask = () => {
-    setNewInput(false);
+    setNewInputId(null);
   };
 
   const handleBlurDescription = () => {
-    setEditDescription(false);
+    setEditDescriptionId(null);
   };
-
-  const handleKeyDownTask = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDownTask = (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>, id: number) => {
     if (e.key === "Enter") {
-      setNewInput(false);
+      setNewInputId(null);
     }
   };
-
-  const handleKeyDownDescription = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  
+  const handleKeyDownDescription = (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>, id: number) => {
     if (e.key === "Enter") {
-      setEditDescription(false);
+      setEditDescriptionId(null);
     }
   };
+  
 
   const handleClosePopup = () => {
     setShowPopup(false);
   };
 
   const handleSelectImage = (url: string) => {
-    setSelectedImage(url); // Устанавливаем выбранное изображение
+    if (currentCardId !== null) {
+      setCards((prevCards) =>
+        prevCards.map((card) =>
+          card.id === currentCardId ? { ...card, selectedImage: url } : card
+        )
+      );
+    }
+    setShowPopup(false);
+  };
+
+  const addNewCard = () => {
+    const newCard: Card = {
+      id: Date.now(),
+      taskName: "Write the name of the task",
+      taskDescription: "Write what you need to do",
+      selectedImage: null,
+    };
+    setCards((prevCards) => [...prevCards, newCard]);
+  };
+
+  const updateTaskName = (id: number, name: string) => {
+    setCards((prevCards) =>
+      prevCards.map((card) =>
+        card.id === id ? { ...card, taskName: name } : card
+      )
+    );
+  };
+
+  const updateTaskDescription = (id: number, description: string) => {
+    setCards((prevCards) =>
+      prevCards.map((card) =>
+        card.id === id ? { ...card, taskDescription: description } : card
+      )
+    );
   };
 
   return (
@@ -67,17 +105,13 @@ export const MakingBlock: React.FC<MakingBlockProps> = ({ children }) => {
         padding: "10px",
         gap: "10px",
         boxShadow: "0px 0px 60px rgba(0, 0, 0, 0.2)",
-        background: "#FFFFF",
         display: "flex",
         flexDirection: "column",
         alignItems: "flex-start",
       }}
     >
       {showPopup && (
-        <Popup
-          onClose={handleClosePopup}
-          onSelectImage={handleSelectImage} // Передаем callback в попап
-        />
+        <Popup onClose={handleClosePopup} onSelectImage={handleSelectImage} />
       )}
       <Typography
         sx={{
@@ -91,11 +125,12 @@ export const MakingBlock: React.FC<MakingBlockProps> = ({ children }) => {
       >
         {children}
       </Typography>
-      {addCard && (
+      {cards.map((card) => (
         <Box
+          key={card.id}
           sx={{
             width: "100%",
-            minHeight: "230px",
+            height: "230px",
             background: "#F5F5F5",
             borderRadius: "20px",
             display: "flex",
@@ -108,7 +143,7 @@ export const MakingBlock: React.FC<MakingBlockProps> = ({ children }) => {
             sx={{
               width: "100%",
               minHeight: "130px",
-              background: selectedImage ? `url(${selectedImage})` : "#7D8AA1", // Показываем выбранное изображение
+              background: card.selectedImage ? `url(${card.selectedImage})` : "#7D8AA1",
               borderRadius: "20px",
               display: "flex",
               alignItems: "center",
@@ -117,14 +152,15 @@ export const MakingBlock: React.FC<MakingBlockProps> = ({ children }) => {
               backgroundPosition: "center",
             }}
           >
-            {!selectedImage && (
+            {!card.selectedImage && (
               <img
                 onClick={() => {
                   setShowPopup(true);
+                  setCurrentCardId(card.id);
                 }}
                 style={{ cursor: "pointer" }}
                 src={cross}
-                alt="Add Image"
+                alt=""
               />
             )}
           </Box>
@@ -137,7 +173,7 @@ export const MakingBlock: React.FC<MakingBlockProps> = ({ children }) => {
               textAlign: "left",
             }}
           >
-            {newInput ? (
+            {newInputId === card.id ? (
               <Input
                 sx={{
                   width: "100%",
@@ -147,14 +183,14 @@ export const MakingBlock: React.FC<MakingBlockProps> = ({ children }) => {
                   fontWeight: "900",
                 }}
                 ref={inputRef}
-                value={taskName}
-                onChange={(e) => setTaskName(e.target.value)}
+                value={card.taskName}
+                onChange={(e) => updateTaskName(card.id, e.target.value)}
                 onBlur={handleBlurTask}
-                onKeyDown={handleKeyDownTask}
+                onKeyDown={(e) => handleKeyDownTask(e, card.id)}
               />
             ) : (
               <Typography
-                onClick={() => setNewInput(true)}
+                onClick={() => setNewInputId(card.id)}
                 sx={{
                   fontFamily: "Unbounded, sans-serif",
                   fontWeight: "900",
@@ -164,11 +200,10 @@ export const MakingBlock: React.FC<MakingBlockProps> = ({ children }) => {
                   maxWidth: "100%",
                 }}
               >
-                {taskName}
+                {card.taskName}
               </Typography>
             )}
-
-            {editDescription ? (
+            {editDescriptionId === card.id ? (
               <Input
                 sx={{
                   width: "100%",
@@ -177,14 +212,14 @@ export const MakingBlock: React.FC<MakingBlockProps> = ({ children }) => {
                   fontWeight: "900",
                 }}
                 ref={descriptionInputRef}
-                value={taskDescription}
-                onChange={(e) => setTaskDescription(e.target.value)}
+                value={card.taskDescription}
+                onChange={(e) => updateTaskDescription(card.id, e.target.value)}
                 onBlur={handleBlurDescription}
-                onKeyDown={handleKeyDownDescription}
+                onKeyDown={(e) => handleKeyDownDescription(e, card.id)}
               />
             ) : (
               <Typography
-                onClick={() => setEditDescription(true)}
+                onClick={() => setEditDescriptionId(card.id)}
                 sx={{
                   color: "#394D70",
                   fontWeight: "700",
@@ -194,16 +229,14 @@ export const MakingBlock: React.FC<MakingBlockProps> = ({ children }) => {
                   maxWidth: "100%",
                 }}
               >
-                {taskDescription}
+                {card.taskDescription}
               </Typography>
             )}
           </Box>
         </Box>
-      )}
+      ))}
       <Typography
-        onClick={() => {
-          setAddCard(true);
-        }}
+        onClick={addNewCard}
         sx={{
           fontFamily: "Inter, sans-serif",
           fontSize: 20,

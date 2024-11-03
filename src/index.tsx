@@ -5,15 +5,17 @@ import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { authStore } from './store';
 
-export const context = createContext<any>(null)
+export const context = createContext<any>(null);
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
-  <context.Provider value={{authStore}}>
-    <App />
-  </context.Provider>
+  <React.StrictMode>
+    <context.Provider value={{ authStore }}>
+      <App />
+    </context.Provider>
+  </React.StrictMode>
 );
 
 // If you want to start measuring performance in your app, pass a function
