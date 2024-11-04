@@ -43,6 +43,7 @@ const SignIn: React.FC = observer(() => {
       localStorage.setItem('token', result)
       ctx?.authStore?.setIsAuth(true)
       navigate(Paths.Home)
+      console.log(Paths.Home);
     }catch(err){
       if(!err || !(err as AxiosError) || !(err as AxiosError)?.response){
         setError('Что-то пошло не так...');

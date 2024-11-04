@@ -13,7 +13,7 @@ export const Home = () => {
                         color: "#394D70"
                     }}
                 >
-                    wellcome,
+                    wellcome,   
                 </Typography>
                 <Typography
                     sx={{

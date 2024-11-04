@@ -2,7 +2,8 @@ import { Box, Typography } from "@mui/material";
 import { useState } from "react";
 import photo2 from "../../assets/iconsForbg/krzysztof-kowalik-2pnozU26QBo-unsplash.jpg";
 import photo3 from "../../assets/iconsForbg/michael-fousert-v96gcVQdTgU-unsplash.jpg";
-import photo4 from "../../assets/iconsForbg/sora-sagano-8sOZJ8JF0S8-unsplash.jpg";
+// import photo4 from "../../assets/iconsForbg/sora-sagano-8sOZJ8JF0S8-unsplash.jpg";
+import photo4 from "../../assets/iconsForbg/wp1.jpg" ;
 import photo5 from "../../assets/iconsForbg/premium_photo-1675344576121-81e305536fd3.jpg";
 import blood from "../../assets/blood.png";
 import none from "../../assets/none.svg";
@@ -15,7 +16,7 @@ interface Image {
 
 interface PopupProps {
   onClose: () => void;
-  onSelectImage: (url: string) => void; // Добавляем callback для выбора изображения
+  onSelectImage: (url: string) => void;
 }
 
 export const Popup: React.FC<PopupProps> = ({ onClose, onSelectImage }) => {
@@ -28,8 +29,8 @@ export const Popup: React.FC<PopupProps> = ({ onClose, onSelectImage }) => {
   ]);
 
   const handleImageClick = (url: string) => {
-    onSelectImage(url); // Вызываем callback при выборе изображения
-    onClose(); // Закрываем попап после выбора
+    onSelectImage(url);
+    onClose();
   };
 
   return (
@@ -66,7 +67,7 @@ export const Popup: React.FC<PopupProps> = ({ onClose, onSelectImage }) => {
           <Box
             key={image.id}
             sx={{ width: 250, height: 200, m: 1, cursor: "pointer" }}
-            onClick={() => handleImageClick(image.url)} // При клике на изображение вызываем функцию
+            onClick={() => handleImageClick(image.url)}
           >
             <img
               src={image.url}
@@ -95,7 +96,7 @@ export const Popup: React.FC<PopupProps> = ({ onClose, onSelectImage }) => {
             position: "relative",
           }}
         >
-          <img src={none} alt="No image" />
+          <img src={none} alt={none} />
           <Typography
             sx={{
               fontFamily: 'Unbounded, sans-serif',
