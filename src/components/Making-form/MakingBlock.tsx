@@ -152,7 +152,6 @@ export const MakingBlock: React.FC<MakingBlockProps> = ({ children }) => {
               backgroundPosition: "center",
             }}
           >
-            {!card.selectedImage && (
               <img
                 onClick={() => {
                   setShowPopup(true);
@@ -162,7 +161,6 @@ export const MakingBlock: React.FC<MakingBlockProps> = ({ children }) => {
                 src={cross}
                 alt=""
               />
-            )}
           </Box>
           <Box
             sx={{

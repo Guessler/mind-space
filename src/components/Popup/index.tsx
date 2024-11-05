@@ -1,12 +1,11 @@
 import { Box, Typography } from "@mui/material";
 import { useState } from "react";
-import photo2 from "../../assets/iconsForbg/krzysztof-kowalik-2pnozU26QBo-unsplash.jpg";
-import photo3 from "../../assets/iconsForbg/michael-fousert-v96gcVQdTgU-unsplash.jpg";
-// import photo4 from "../../assets/iconsForbg/sora-sagano-8sOZJ8JF0S8-unsplash.jpg";
-import photo4 from "../../assets/iconsForbg/wp1.jpg" ;
-import photo5 from "../../assets/iconsForbg/premium_photo-1675344576121-81e305536fd3.jpg";
-import blood from "../../assets/blood.png";
+import photo2 from "../../assets/iconsForbg/1623781112_img0.jpg";
+import photo3 from "../../assets/iconsForbg/wallpaperflare.com_wallpaper.jpg";
+import photo5 from "../../assets/iconsForbg/wallpaperflare.com_wallpaper1.jpg";
+import blood from "../../assets/iconsForbg/windows-11-dark-mode-abstract-background-black-background-3840x2160-8710.jpg";
 import none from "../../assets/none.svg";
+import yourImage from "../../assets/your image.svg"
 
 interface Image {
   id: number;
@@ -24,13 +23,24 @@ export const Popup: React.FC<PopupProps> = ({ onClose, onSelectImage }) => {
     { id: 1, url: photo5, alt: "Abstract geometric pattern" },
     { id: 2, url: photo2, alt: "A beautiful sunset over a mountain range" },
     { id: 3, url: photo3, alt: "A calm beach with clear blue water" },
-    { id: 4, url: photo4, alt: "A forest pathway with autumn leaves" },
     { id: 5, url: blood, alt: "A dark and intense scene with blood splashes" },
   ]);
 
   const handleImageClick = (url: string) => {
     onSelectImage(url);
     onClose();
+  };
+
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        onSelectImage(reader.result as string);
+        onClose();
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   return (
@@ -95,6 +105,43 @@ export const Popup: React.FC<PopupProps> = ({ onClose, onSelectImage }) => {
             flexDirection: "column",
             position: "relative",
           }}
+          onClick={() => document.getElementById("fileInput")?.click()}
+        >
+          <img src={yourImage} alt={yourImage} />
+          <Typography
+            sx={{
+              fontFamily: 'Unbounded, sans-serif',
+              fontSize: 24,
+              color: "white",
+              position: "absolute",
+              mt: "120px",
+            }}
+          >
+            Your image
+          </Typography>
+          <input
+            id="fileInput"
+            type="file"
+            accept="image/*"
+            style={{ display: "none" }}
+            onChange={handleFileChange}
+          />
+        </Box>
+        <Box
+          sx={{
+            width: 250,
+            height: 200,
+            background: "#D9D9D9",
+            borderRadius: "20px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            m: 1,
+            cursor: "pointer",
+            flexDirection: "column",
+            position: "relative",
+          }}
+          onClick={() => handleImageClick("")}
         >
           <img src={none} alt={none} />
           <Typography
