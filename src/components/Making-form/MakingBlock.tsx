@@ -43,8 +43,11 @@ export const MakingBlock: React.FC<MakingBlockProps> = ({ children }) => {
     setEditDescriptionId(null);
   };
   const handleKeyDownTask = (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>, id: number) => {
-    if (e.key === "Enter") {
+    if (e.key === "Enter" && cards.find((card) => card.id === id)?.taskName !== "") {
       setNewInputId(null);
+    }
+    else{
+      alert(123)
     }
   };
   
