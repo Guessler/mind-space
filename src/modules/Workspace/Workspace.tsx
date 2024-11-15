@@ -6,11 +6,12 @@ import { useEffect, useState } from "react";
 import { Box, Typography } from "@mui/material";
 import { MakingBlock } from "../../components/Making-form";
 import { Popup } from "../../components/Popup";
+import { Menu } from "../../components/Menu"
 
 export const Workspace = () => {
     const { id } = useParams();
     const { data, isLoading, error } = useSWR(`workspace-${id}`, () => workspaceService.getById(id as string));
-    
+
     const [addImage, setAddImage] = useState<boolean>(false);
     const [backgroundImage, setBackgroundImage] = useState<string | null>(null);
 
@@ -41,18 +42,20 @@ export const Workspace = () => {
 
     return (
         <>
-            {addImage && 
+            <Menu />
+            {addImage &&
                 <Popup
                     onClose={handleClosePopup}
                     onSelectImage={handleSelectImage}
                 />
             }
 
-            <Box 
+            <Box
                 sx={{
-                    width: "100%", 
-                    minHeight: "50px", 
+                    width: "100%",
+                    minHeight: "50px",
                     height: backgroundImage ? "300px" : "50px",
+                    marginTop: backgroundImage ? "" : "50px",
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -62,14 +65,14 @@ export const Workspace = () => {
                     "&:hover .add-image-text": {
                         opacity: 0.8
                     }
-                }} 
+                }}
             >
-                <Typography 
-                    className="add-image-text" 
-                    onClick={() => { setAddImage(true); }} 
+                <Typography
+                    className="add-image-text"
+                    onClick={() => { setAddImage(true); }}
                     sx={{
                         fontFamily: "Unbounded",
-                        color: "#394D70",
+                        color: backgroundImage ? "#FFFFFF" : "#394D70",
                         fontWeight: 900,
                         opacity: 0.1,
                         cursor: "pointer",
@@ -89,11 +92,14 @@ export const Workspace = () => {
                     marginBottom: "50px",
                     marginTop: "20px",
                 }} variant="h3">{data?.name}</Typography>
-                <Box sx={{ width: "100%", display: "flex", flexDirection: "row", justifyContent: "space-between", }}>
+                <Box sx={{display: "flex", justifyContent: "space-between"}}>
                     {tasks.map((task) => (
-                        <MakingBlock key={task.id}>
-                            {task.title}
-                        </MakingBlock>
+                        <Box sx={{height: "auto"}}>
+                            <MakingBlock key={task.id}>
+                                {task.title}
+                            </MakingBlock>
+                        </Box>
+
                     ))}
                 </Box>
             </BaseLayout>

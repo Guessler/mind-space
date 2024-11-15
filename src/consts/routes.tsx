@@ -5,11 +5,12 @@ import SignUp from '../pages/SignUp'
 import { WorkspacePage } from '../pages/Workspace';
 
 export enum Paths {
-  'SignIn'='/sign-in',
-  'SignUp'='/sign-up',
-  'Home'="/",
-  'Workspace'="/:id"
+  SignIn = '/sign-in',
+  SignUp = '/sign-up',
+  Home = '/',
+  Workspace = '/:id'
 }
+
 
 const authRouter = createBrowserRouter([
     {

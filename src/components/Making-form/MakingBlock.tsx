@@ -1,12 +1,10 @@
-import { Box, Input, Typography } from "@mui/material";
+import { Box, TextField, Typography } from "@mui/material";
 import { ReactNode, useEffect, useRef, useState } from "react";
 import cross from "../../assets/cross.svg";
 import { Popup } from "../Popup";
 
 interface Card {
   id: number;
-  taskName: string;
-  taskDescription: string;
   selectedImage: string | null;
 }
 
@@ -16,47 +14,16 @@ interface MakingBlockProps {
 
 export const MakingBlock: React.FC<MakingBlockProps> = ({ children }) => {
   const [cards, setCards] = useState<Card[]>([]);
-  const [newInputId, setNewInputId] = useState<number | null>(null);
-  const [editDescriptionId, setEditDescriptionId] = useState<number | null>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [editDescriptionId] = useState<number | null>(null);
   const descriptionInputRef = useRef<HTMLInputElement>(null);
   const [showPopup, setShowPopup] = useState<boolean>(false);
   const [currentCardId, setCurrentCardId] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (newInputId !== null && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [newInputId]);
 
   useEffect(() => {
     if (editDescriptionId !== null && descriptionInputRef.current) {
       descriptionInputRef.current.focus();
     }
   }, [editDescriptionId]);
-
-  const handleBlurTask = () => {
-    setNewInputId(null);
-  };
-
-  const handleBlurDescription = () => {
-    setEditDescriptionId(null);
-  };
-  const handleKeyDownTask = (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>, id: number) => {
-    if (e.key === "Enter" && cards.find((card) => card.id === id)?.taskName !== "") {
-      setNewInputId(null);
-    }
-    else{
-      alert(123)
-    }
-  };
-  
-  const handleKeyDownDescription = (e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>, id: number) => {
-    if (e.key === "Enter") {
-      setEditDescriptionId(null);
-    }
-  };
-  
 
   const handleClosePopup = () => {
     setShowPopup(false);
@@ -76,19 +43,9 @@ export const MakingBlock: React.FC<MakingBlockProps> = ({ children }) => {
   const addNewCard = () => {
     const newCard: Card = {
       id: Date.now(),
-      taskName: "Write the name of the task",
-      taskDescription: "Write what you need to do",
       selectedImage: null,
     };
     setCards((prevCards) => [...prevCards, newCard]);
-  };
-
-  const updateTaskName = (id: number, name: string) => {
-    setCards((prevCards) =>
-      prevCards.map((card) =>
-        card.id === id ? { ...card, taskName: name } : card
-      )
-    );
   };
 
   const updateTaskDescription = (id: number, description: string) => {
@@ -106,11 +63,11 @@ export const MakingBlock: React.FC<MakingBlockProps> = ({ children }) => {
         minHeight: "50px",
         borderRadius: "10px",
         padding: "10px",
-        gap: "10px",
         boxShadow: "0px 0px 60px rgba(0, 0, 0, 0.2)",
         display: "flex",
         flexDirection: "column",
         alignItems: "flex-start",
+        gap: "10px",
       }}
     >
       {showPopup && (
@@ -122,8 +79,8 @@ export const MakingBlock: React.FC<MakingBlockProps> = ({ children }) => {
           fontSize: 20,
           fontWeight: "900",
           lineHeight: 1.1,
-          mb: "-4px",
           color: "#394D70",
+          margin: 0, // Убираем отступы
         }}
       >
         {children}
@@ -133,13 +90,14 @@ export const MakingBlock: React.FC<MakingBlockProps> = ({ children }) => {
           key={card.id}
           sx={{
             width: "100%",
-            height: "230px",
             background: "#F5F5F5",
             borderRadius: "20px",
             display: "flex",
             alignItems: "center",
             flexDirection: "column",
             gap: "10px",
+            padding: 0, // Убираем паддинг
+            transition: "all 0.3s ease",
           }}
         >
           <Box
@@ -153,86 +111,87 @@ export const MakingBlock: React.FC<MakingBlockProps> = ({ children }) => {
               justifyContent: "center",
               backgroundSize: "cover",
               backgroundPosition: "center",
+              padding: 0, // Убираем паддинг
             }}
           >
-              <img
-                onClick={() => {
-                  setShowPopup(true);
-                  setCurrentCardId(card.id);
-                }}
-                style={{ cursor: "pointer" }}
-                src={cross}
-                alt=""
-              />
+            <img
+              onClick={() => {
+                setShowPopup(true);
+                setCurrentCardId(card.id);
+              }}
+              style={{ cursor: "pointer" }}
+              src={cross}
+              alt="close"
+            />
           </Box>
           <Box
             sx={{
-              width: "90%",
-              gap: "20px",
+              width: "100%",
               display: "flex",
               flexDirection: "column",
               textAlign: "left",
+              gap: "5px",
+              padding: 0, // Убираем паддинг
             }}
           >
-            {newInputId === card.id ? (
-              <Input
-                sx={{
-                  width: "100%",
-                  border: "none",
-                  outline: "none",
-                  fontFamily: "Unbounded, sans-serif",
-                  fontWeight: "900",
-                }}
-                ref={inputRef}
-                value={card.taskName}
-                onChange={(e) => updateTaskName(card.id, e.target.value)}
-                onBlur={handleBlurTask}
-                onKeyDown={(e) => handleKeyDownTask(e, card.id)}
-              />
-            ) : (
-              <Typography
-                onClick={() => setNewInputId(card.id)}
-                sx={{
-                  fontFamily: "Unbounded, sans-serif",
+            <TextField
+              sx={{
+                width: "100%",
+                fontWeight: "900",
+                color: "#394D70",
+                "& .MuiOutlinedInput-root": {
+                  padding: 0, // Убираем паддинг в контейнере
+                  border: "none", // Убираем обводку по умолчанию
+                },
+                "& .MuiInputBase-input": {
+                  padding: "10px", // Паддинг для текста
                   fontWeight: "900",
                   color: "#394D70",
-                  cursor: "pointer",
-                  wordBreak: "break-word",
-                  maxWidth: "100%",
-                }}
-              >
-                {card.taskName}
-              </Typography>
-            )}
-            {editDescriptionId === card.id ? (
-              <Input
-                sx={{
-                  width: "100%",
-                  border: "none",
-                  outline: "none",
-                  fontWeight: "900",
-                }}
-                ref={descriptionInputRef}
-                value={card.taskDescription}
-                onChange={(e) => updateTaskDescription(card.id, e.target.value)}
-                onBlur={handleBlurDescription}
-                onKeyDown={(e) => handleKeyDownDescription(e, card.id)}
-              />
-            ) : (
-              <Typography
-                onClick={() => setEditDescriptionId(card.id)}
-                sx={{
+                  border: "none", // Убираем обводку для самого инпута
+                  minHeight: "30px", // Минимальная высота для текста
+                },
+                "& .MuiInputBase-inputMultiline": {
+                  border: "none", // Убираем обводку для мультистрочных инпутов
+                },
+                height: "auto", // Позволяет увеличиваться в зависимости от контента
+              }}
+              placeholder="Write the name of the task"
+              onChange={(e) => updateTaskDescription(card.id, e.target.value)}
+              multiline
+              minRows={1}
+              maxRows={5}
+              inputRef={descriptionInputRef}
+            />
+
+            <TextField
+              sx={{
+                width: "100%",
+                fontWeight: "600",
+                color: "#394D70",
+                opacity: 0.5,
+                "& .MuiOutlinedInput-root": {
+                  padding: 0, // Убираем паддинг в контейнере
+                  border: "none", // Убираем обводку по умолчанию
+                },
+                "& .MuiInputBase-input": {
+                  padding: "10px", // Паддинг для текста
+                  fontWeight: "600",
                   color: "#394D70",
-                  fontWeight: "700",
-                  opacity: 0.5,
-                  cursor: "pointer",
-                  wordBreak: "break-word",
-                  maxWidth: "100%",
-                }}
-              >
-                {card.taskDescription}
-              </Typography>
-            )}
+                  border: "none", // Убираем обводку для самого инпута
+                  minHeight: "30px", // Минимальная высота для текста
+                },
+                "& .MuiInputBase-inputMultiline": {
+                  border: "none", // Убираем обводку для мультистрочных инпутов
+                },
+                height: "auto", // Позволяет увеличиваться в зависимости от контента
+              }}
+              placeholder="Write what you need to do"
+              multiline
+              minRows={1}
+              maxRows={5}
+              onChange={(e) => updateTaskDescription(card.id, e.target.value)}
+              inputRef={descriptionInputRef}
+            />
           </Box>
         </Box>
       ))}
@@ -245,6 +204,7 @@ export const MakingBlock: React.FC<MakingBlockProps> = ({ children }) => {
           color: "#394D70",
           opacity: 0.5,
           cursor: "pointer",
+          margin: 0, // Убираем отступы
         }}
       >
         Add Card+
