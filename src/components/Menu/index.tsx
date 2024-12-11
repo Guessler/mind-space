@@ -8,17 +8,22 @@ import britain from "../../assets/brit.svg";
 import { useReducer } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Paths } from "../../consts/routes";
+import home from "../../assets/svgIconsForSidebar/Vector.svg";
+import search from "../../assets/svgIconsForSidebar/Vector-1.svg";
+import Friends from "../../assets/svgIconsForSidebar/Vector-2.svg";
+import LogOut from "../../assets/svgIconsForSidebar/log out.svg";
+import icon from "../../assets/image 12.png"
 
 const toggleReducer = (prev: boolean) => !prev;
 
 export const Menu = () => {
     const [isActive, setIsActive] = useReducer(toggleReducer, false);
-    const navigate = useNavigate();  // Хук для навигации
+    const navigate = useNavigate();
+    const [openSidebar, setOpenSidebar] = useReducer(toggleReducer, false)
 
     const handleClick = () => {
-        alert("it's ready yet");
+        alert("isn't ready yet");
     };
-
     const handleArrowClick = () => {
         navigate(-1);
     };
@@ -36,8 +41,25 @@ export const Menu = () => {
                 zIndex: 10,
             }}
         >
-            <Box sx={{ marginLeft: "20px", gap: "40px", display: "flex", alignItems: "center" }}>
-                <Box component="img" src={burger} alt="Burger icon" />
+            <Box sx={{ marginLeft: "20px", gap: "40px", display: "flex", alignItems: "center", position: "relative" }}>
+                <Box onClick={() => setOpenSidebar()} component="img" src={burger} alt="Burger icon" />
+                {openSidebar &&
+                    <Box sx={{ position: "absolute", width: "380px" ,background: "#394D70", borderRadius: "0 20px 20px 0", marginTop: "950px", display: "flex", flexDirection: "column", gap: "60px", padding: "20px" }}>
+                        <Box sx={{ display: "flex", gap: "20px" }}>
+                            <Box component="img" src={icon} alt={icon}></Box>
+                            <Box sx={{ display: "flex", flexDirection: "column", justifyContent: "center", }}>
+                                <Typography sx={{ color: "white", fontFamily: "Unbounded", fontSize: "24px" }}>User name</Typography>
+                                <Typography sx={{ color: "#7D8898", fontFamily: "Unbounded" }}>user@mail.com</Typography>
+                            </Box>
+                        </Box>
+                        <Box sx={{display: "flex", flexDirection: "column" ,gap: "30px"}}>
+                            <Typography sx={{ display: "flex", gap: "50px", color: "white", fontFamily: "Unbounded", fontSize: "24px" }}><Box src={home} alt={home} component="img"></Box>Home page</Typography>
+                            <Typography sx={{ display: "flex", gap: "50px", color: "white", fontFamily: "Unbounded", fontSize: "24px" }}><Box src={Friends} alt={Friends} component="img"></Box>Search</Typography>
+                            <Typography sx={{ display: "flex", gap: "50px", color: "white", fontFamily: "Unbounded", fontSize: "24px" }}><Box src={search} alt={search} component="img"></Box>Friends</Typography>
+                            <Typography sx={{ display: "flex", gap: "50px", color: "white", fontFamily: "Unbounded", fontSize: "24px" }}><Box src={LogOut} alt={LogOut} component="img"></Box>Quit</Typography>
+                        </Box>
+                    </Box>
+                }
                 <Box component="img" src={arrow} alt="Arrow icon" onClick={handleArrowClick} style={{ cursor: "pointer" }} />
             </Box>
             <Box sx={{ marginRight: "20px", gap: "40px", display: "flex", alignItems: "center" }}>

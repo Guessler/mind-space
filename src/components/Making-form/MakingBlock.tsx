@@ -1,214 +1,227 @@
-import { Box, TextField, Typography } from "@mui/material";
-import { ReactNode, useEffect, useRef, useState } from "react";
-import cross from "../../assets/cross.svg";
-import { Popup } from "../Popup";
+  import { Box, TextField, Typography } from "@mui/material";
+  import { ReactNode, useEffect, useRef, useState } from "react";
+  import cross from "../../assets/cross.svg";
+  import { Popup } from "../Popup";
+  import { DragDropContext, Droppable, Draggable } from "react-beautiful-dnd";
 
-interface Card {
-  id: number;
-  selectedImage: string | null;
-}
 
-interface MakingBlockProps {
-  children?: ReactNode;
-}
+  interface Card {
+    id: number;
+    selectedImage: string | null;
+  }
 
-export const MakingBlock: React.FC<MakingBlockProps> = ({ children }) => {
-  const [cards, setCards] = useState<Card[]>([]);
-  const [editDescriptionId] = useState<number | null>(null);
-  const descriptionInputRef = useRef<HTMLInputElement>(null);
-  const [showPopup, setShowPopup] = useState<boolean>(false);
-  const [currentCardId, setCurrentCardId] = useState<number | null>(null);
+  interface MakingBlockProps {
+    children?: ReactNode;
+  }
 
-  useEffect(() => {
-    if (editDescriptionId !== null && descriptionInputRef.current) {
-      descriptionInputRef.current.focus();
-    }
-  }, [editDescriptionId]);
+  export const MakingBlock: React.FC<MakingBlockProps> = ({ children }) => {
+    const [cards, setCards] = useState<Card[]>([]);
+    const [editDescriptionId] = useState<number | null>(null);
+    const descriptionInputRef = useRef<HTMLInputElement>(null);
+    const [showPopup, setShowPopup] = useState<boolean>(false);
+    const [currentCardId, setCurrentCardId] = useState<number | null>(null);
 
-  const handleClosePopup = () => {
-    setShowPopup(false);
-  };
+    useEffect(() => {
+      if (editDescriptionId !== null && descriptionInputRef.current) {
+        descriptionInputRef.current.focus();
+      }
+    }, [editDescriptionId]);
 
-  const handleSelectImage = (url: string) => {
-    if (currentCardId !== null) {
+    const handleClosePopup = () => {
+      setShowPopup(false);
+    };
+
+    const handleSelectImage = (url: string) => {
+      if (currentCardId !== null) {
+        setCards((prevCards) =>
+          prevCards.map((card) =>
+            card.id === currentCardId ? { ...card, selectedImage: url } : card
+          )
+        );
+      }
+      setShowPopup(false);
+    };
+
+    const addNewCard = () => {
+      const newCard: Card = {
+        id: Date.now(),
+        selectedImage: null,
+      };
+      setCards((prevCards) => [...prevCards, newCard]);
+    };
+
+    const updateTaskDescription = (id: number, description: string) => {
       setCards((prevCards) =>
         prevCards.map((card) =>
-          card.id === currentCardId ? { ...card, selectedImage: url } : card
+          card.id === id ? { ...card, taskDescription: description } : card
         )
       );
-    }
-    setShowPopup(false);
-  };
-
-  const addNewCard = () => {
-    const newCard: Card = {
-      id: Date.now(),
-      selectedImage: null,
     };
-    setCards((prevCards) => [...prevCards, newCard]);
-  };
 
-  const updateTaskDescription = (id: number, description: string) => {
-    setCards((prevCards) =>
-      prevCards.map((card) =>
-        card.id === id ? { ...card, taskDescription: description } : card
-      )
-    );
-  };
-
-  return (
-    <Box
-      sx={{
-        width: "360px",
-        minHeight: "50px",
-        borderRadius: "10px",
-        padding: "10px",
-        boxShadow: "0px 0px 60px rgba(0, 0, 0, 0.2)",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "flex-start",
-        gap: "10px",
-      }}
-    >
-      {showPopup && (
-        <Popup onClose={handleClosePopup} onSelectImage={handleSelectImage} />
-      )}
-      <Typography
+    return (
+      <Box
         sx={{
-          fontFamily: "Unbounded, sans-serif",
-          fontSize: 20,
-          fontWeight: "900",
-          lineHeight: 1.1,
-          color: "#394D70",
-          margin: 0, // Убираем отступы
+          width: "360px",
+          minHeight: "50px",
+          borderRadius: "10px",
+          padding: "10px",
+          boxShadow: "0px 0px 60px rgba(0, 0, 0, 0.2)",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "flex-start",
+          gap: "10px",
         }}
       >
-        {children}
-      </Typography>
-      {cards.map((card) => (
-        <Box
-          key={card.id}
+        {showPopup && (
+          <Popup onClose={handleClosePopup} onSelectImage={handleSelectImage} />
+        )}
+        <Typography
           sx={{
-            width: "100%",
-            background: "#F5F5F5",
-            borderRadius: "20px",
-            display: "flex",
-            alignItems: "center",
-            flexDirection: "column",
-            gap: "10px",
-            padding: 0, // Убираем паддинг
-            transition: "all 0.3s ease",
+            fontFamily: "Unbounded, sans-serif",
+            fontSize: 20,
+            fontWeight: "900",
+            lineHeight: 1.1,
+            color: "#394D70",
+            margin: 0,
           }}
         >
+          {children}
+        </Typography>
+        {cards.map((card) => (
           <Box
+            key={card.id}
             sx={{
               width: "100%",
-              minHeight: "130px",
-              background: card.selectedImage ? `url(${card.selectedImage})` : "#7D8AA1",
+              background: "#F5F5F5",
               borderRadius: "20px",
               display: "flex",
               alignItems: "center",
-              justifyContent: "center",
-              backgroundSize: "cover",
-              backgroundPosition: "center",
-              padding: 0, // Убираем паддинг
-            }}
-          >
-            <img
-              onClick={() => {
-                setShowPopup(true);
-                setCurrentCardId(card.id);
-              }}
-              style={{ cursor: "pointer" }}
-              src={cross}
-              alt="close"
-            />
-          </Box>
-          <Box
-            sx={{
-              width: "100%",
-              display: "flex",
               flexDirection: "column",
-              textAlign: "left",
-              gap: "5px",
-              padding: 0, // Убираем паддинг
+              gap: "10px",
+              padding: 0,
+              transition: "all 0.3s ease",
             }}
           >
-            <TextField
+            <Box
               sx={{
                 width: "100%",
-                fontWeight: "900",
-                color: "#394D70",
-                "& .MuiOutlinedInput-root": {
-                  padding: 0, // Убираем паддинг в контейнере
-                  border: "none", // Убираем обводку по умолчанию
-                },
-                "& .MuiInputBase-input": {
-                  padding: "10px", // Паддинг для текста
-                  fontWeight: "900",
-                  color: "#394D70",
-                  border: "none", // Убираем обводку для самого инпута
-                  minHeight: "30px", // Минимальная высота для текста
-                },
-                "& .MuiInputBase-inputMultiline": {
-                  border: "none", // Убираем обводку для мультистрочных инпутов
-                },
-                height: "auto", // Позволяет увеличиваться в зависимости от контента
+                minHeight: "130px",
+                background: card.selectedImage ? `url(${card.selectedImage})` : "#7D8AA1",
+                borderRadius: "20px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                padding: 0,
               }}
-              placeholder="Write the name of the task"
-              onChange={(e) => updateTaskDescription(card.id, e.target.value)}
-              multiline
-              minRows={1}
-              maxRows={5}
-              inputRef={descriptionInputRef}
-            />
-
-            <TextField
+            >
+              <img
+                onClick={() => {
+                  setShowPopup(true);
+                  setCurrentCardId(card.id);
+                }}
+                style={{ cursor: "pointer" }}
+                src={cross}
+                alt="close"
+              />
+            </Box>
+            <Box
               sx={{
                 width: "100%",
-                fontWeight: "600",
-                color: "#394D70",
-                opacity: 0.5,
-                "& .MuiOutlinedInput-root": {
-                  padding: 0, // Убираем паддинг в контейнере
-                  border: "none", // Убираем обводку по умолчанию
-                },
-                "& .MuiInputBase-input": {
-                  padding: "10px", // Паддинг для текста
+                display: "flex",
+                flexDirection: "column",
+                textAlign: "left",
+                gap: "5px",
+                padding: 0,
+              }}
+            >
+              <TextField
+                multiline
+                placeholder="Write the name of the task"
+                onChange={(e) => updateTaskDescription(card.id, e.target.value)}
+                minRows={1}
+                maxRows={5}
+                inputRef={descriptionInputRef}
+                sx={{
+                  width: "100%",
+                  "& .MuiOutlinedInput-root": {
+                    border: "none",
+                    padding: 0,
+                    "& fieldset": {
+                      border: "none",
+                    },
+                    "&:hover fieldset": {
+                      border: "none",
+                    },
+                    "&.Mui-focused fieldset": {
+                      border: "none",
+                    },
+                  },
+                  "& .MuiInputBase-input": {
+                    padding: "10px",
+                    fontWeight: 900,
+                    color: "#394D70",
+                    minHeight: "30px",
+                  },
+                }}
+              />
+              <TextField
+                sx={{
+                  width: "100%",
                   fontWeight: "600",
                   color: "#394D70",
-                  border: "none", // Убираем обводку для самого инпута
-                  minHeight: "30px", // Минимальная высота для текста
-                },
-                "& .MuiInputBase-inputMultiline": {
-                  border: "none", // Убираем обводку для мультистрочных инпутов
-                },
-                height: "auto", // Позволяет увеличиваться в зависимости от контента
-              }}
-              placeholder="Write what you need to do"
-              multiline
-              minRows={1}
-              maxRows={5}
-              onChange={(e) => updateTaskDescription(card.id, e.target.value)}
-              inputRef={descriptionInputRef}
-            />
+                  opacity: 0.5,
+                  "& .MuiOutlinedInput-root": {
+                    padding: 0,
+                    border: "none",
+                    "& fieldset": {
+                      border: "none",
+                    },
+                    "&:hover fieldset": {
+                      border: "none",
+                    },
+                    "&.Mui-focused fieldset": {
+                      border: "none",
+                    },
+                  },
+                  "& .MuiInputBase-input": {
+                    padding: "10px",
+                    fontWeight: "600",
+                    color: "#394D70",
+                    border: "none",
+                    minHeight: "30px",
+                  },
+                  "& .MuiInputBase-inputMultiline": {
+                    border: "none",
+                    padding: "10px",
+                  },
+                  height: "auto",
+                }}
+                placeholder="Write what you need to do"
+                multiline
+                minRows={1}
+                maxRows={5}
+                onChange={(e) => updateTaskDescription(card.id, e.target.value)}
+                inputRef={descriptionInputRef}
+              />
+            </Box>
           </Box>
-        </Box>
-      ))}
-      <Typography
-        onClick={addNewCard}
-        sx={{
-          fontFamily: "Inter, sans-serif",
-          fontSize: 20,
-          fontWeight: 500,
-          color: "#394D70",
-          opacity: 0.5,
-          cursor: "pointer",
-          margin: 0, // Убираем отступы
-        }}
-      >
-        Add Card+
-      </Typography>
-    </Box>
-  );
-};
+        ))}
+        <Typography
+          onClick={addNewCard}
+          sx={{
+            fontFamily: "Inter, sans-serif",
+            fontSize: 20,
+            fontWeight: 500,
+            color: "#394D70",
+            opacity: 0.5,
+            cursor: "pointer",
+            margin: 0,
+          }}
+        >
+          Add Card+
+        </Typography>
+      </Box>
+    );
+  };
