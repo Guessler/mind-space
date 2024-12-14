@@ -20,11 +20,12 @@
     "mobx": "^6.12.3",
     "mobx-react-lite": "^4.0.7",
     "react": "^18.2.0",
-    "react-beautiful-dnd": "^13.1.1",
     "react-dom": "^18.2.0",
+    "react-dragula": "^1.1.17",
     "react-final-form": "^6.5.9",
     "react-router-dom": "^6.21.1",
     "react-scripts": "5.0.1",
+    "sortablejs": "^1.15.6",
     "swr": "^2.2.4",
     "typescript": "^4.9.5",
     "web-vitals": "^2.1.4"
@@ -54,6 +55,7 @@
     ]
   },
   "devDependencies": {
-    "@types/react-beautiful-dnd": "^13.1.8"
+    "@types/react-beautiful-dnd": "^13.1.8",
+    "@types/sortablejs": "^1.15.8"
   }
 }
