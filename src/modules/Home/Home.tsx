@@ -1,9 +1,12 @@
 import { BaseLayout } from "../../layout/base"
 import { Workspaces } from "./components/Workspaces"
 import { Typography } from "@mui/material"
+// import { Menu } from "../../components/Menu"
 export const Home = () => {
     return (
-        <BaseLayout>
+        <>
+            {/* <Menu/> */}
+            <BaseLayout>
                 <Typography
                     sx={{
                         fontFamily: 'Unbounded, sans-serif',
@@ -13,7 +16,7 @@ export const Home = () => {
                         color: "#394D70"
                     }}
                 >
-                    wellcome,   
+                    wellcome,
                 </Typography>
                 <Typography
                     sx={{
@@ -28,6 +31,7 @@ export const Home = () => {
                     Username
                 </Typography>
                 <Workspaces />
-        </BaseLayout>
+            </BaseLayout>
+        </>
     )
 }

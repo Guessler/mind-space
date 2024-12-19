@@ -7,23 +7,39 @@ import Sortable from "sortablejs";
 interface Card {
   id: number;
   selectedImage: string | null;
-  taskDescription?: string; // Добавлено для описания задачи
+  taskDescription?: string;
 }
 
 interface MakingBlockProps {
   children?: ReactNode;
-  groupName: string; // Группа для Sortable
-  onCardMove?: (card: Card, from: number, to: number) => void; // Коллбэк для перетаскивания
+  groupName: string;
+  cards: Card[];
+  onCardMove?: (card: Card, from: number, to: number) => void;
+  onCardAdd?: (card: Card) => void;
+  onCardUpdate?: (card: Card) => void;
+  onDeleteBlock?: () => void; // Добавляем коллбэк для удаления блока
 }
 
-export const MakingBlock: React.FC<MakingBlockProps> = ({ children, groupName, onCardMove }) => {
-  const [cards, setCards] = useState<Card[]>([]);
+export const MakingBlock: React.FC<MakingBlockProps> = ({
+  children,
+  groupName,
+  cards,
+  onCardMove,
+  onCardAdd,
+  onCardUpdate,
+  onDeleteBlock, // Добавляем коллбэк для удаления
+}) => {
   const [editDescriptionId] = useState<number | null>(null);
   const descriptionInputRef = useRef<HTMLInputElement>(null);
   const [showPopup, setShowPopup] = useState<boolean>(false);
   const [currentCardId, setCurrentCardId] = useState<number | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const sortableInstance = useRef<Sortable | null>(null);
+  const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
+
+  const handleToggleCollapse = () => {
+    setIsCollapsed((prev) => !prev);
+  };
 
   useEffect(() => {
     if (editDescriptionId !== null && descriptionInputRef.current) {
@@ -40,7 +56,6 @@ export const MakingBlock: React.FC<MakingBlockProps> = ({ children, groupName, o
             const newCards = [...cards];
             const [movedCard] = newCards.splice(oldIndex, 1);
             newCards.splice(newIndex, 0, movedCard);
-            setCards(newCards);
             if (onCardMove) {
               onCardMove(movedCard, oldIndex, newIndex);
             }
@@ -51,7 +66,7 @@ export const MakingBlock: React.FC<MakingBlockProps> = ({ children, groupName, o
 
     return () => {
       if (sortableInstance.current) {
-        sortableInstance.current.destroy();
+        sortableInstance.current.destroy(); // Удаляем Sortable при размонтировании
         sortableInstance.current = null;
       }
     };
@@ -63,11 +78,13 @@ export const MakingBlock: React.FC<MakingBlockProps> = ({ children, groupName, o
 
   const handleSelectImage = (url: string) => {
     if (currentCardId !== null) {
-      setCards((prevCards) =>
-        prevCards.map((card) =>
-          card.id === currentCardId ? { ...card, selectedImage: url } : card
-        )
-      );
+      const updatedCard = cards.find((card) => card.id === currentCardId);
+      if (updatedCard) {
+        const updatedCardWithImage = { ...updatedCard, selectedImage: url };
+        if (onCardUpdate) {
+          onCardUpdate(updatedCardWithImage); // Обновляем состояние через коллбэк
+        }
+      }
     }
     setShowPopup(false);
   };
@@ -77,15 +94,19 @@ export const MakingBlock: React.FC<MakingBlockProps> = ({ children, groupName, o
       id: Date.now(),
       selectedImage: null,
     };
-    setCards((prevCards) => [...prevCards, newCard]);
+    if (onCardAdd) {
+      onCardAdd(newCard);
+    }
   };
 
   const updateTaskDescription = (id: number, description: string) => {
-    setCards((prevCards) =>
-      prevCards.map((card) =>
-        card.id === id ? { ...card, taskDescription: description } : card
-      )
-    );
+    const updatedCard = cards.find((card) => card.id === id);
+    if (updatedCard) {
+      const updatedCardWithDescription = { ...updatedCard, taskDescription: description };
+      if (onCardUpdate) {
+        onCardUpdate(updatedCardWithDescription); // Обновляем состояние через коллбэк
+      }
+    }
   };
 
   return (
@@ -95,16 +116,31 @@ export const MakingBlock: React.FC<MakingBlockProps> = ({ children, groupName, o
         minHeight: "50px",
         borderRadius: "10px",
         padding: "10px",
-        boxShadow: "0px 0px 60px rgba(0, 0, 0, 0.2)",
+        background: "#FFFFFF",
         display: "flex",
         flexDirection: "column",
         alignItems: "flex-start",
         gap: "10px",
+        position: "relative", // Добавляем позиционирование для кнопки удаления
       }}
     >
+
+        <Typography
+        onClick={onDeleteBlock} // Вызываем коллбэк для удаления
+        sx={{
+          fontFamily: "Unbounded, sans-serif",
+          position: "absolute",
+          top: "10px",
+          right: "10px",
+          cursor: "pointer",
+          color: "#394D70",
+        }}
+        >remove</Typography>
+
       {showPopup && (
         <Popup onClose={handleClosePopup} onSelectImage={handleSelectImage} />
       )}
+
       <Typography
         sx={{
           fontFamily: "Unbounded, sans-serif",
@@ -113,33 +149,37 @@ export const MakingBlock: React.FC<MakingBlockProps> = ({ children, groupName, o
           lineHeight: 1.1,
           color: "#394D70",
           margin: 0,
+          cursor: "pointer",
         }}
+        onClick={handleToggleCollapse}
       >
-        {children}
+        {children} {isCollapsed ? ">" : "v"}
       </Typography>
 
-      <Box
-        ref={containerRef}
-        sx={{
-          width: "100%",
-          display: "flex",
-          flexDirection: "column",
-          gap: "10px",
-        }}
-      >
-        {Array.isArray(cards) && cards.length > 0 && cards.map((card) => (
-          <CardItem
-            key={card.id}
-            card={card}
-            onSelectImage={(id) => {
-              setShowPopup(true);
-              setCurrentCardId(id);
-            }}
-            updateTaskDescription={updateTaskDescription}
-            descriptionInputRef={descriptionInputRef}
-          />
-        ))}
-      </Box>
+      {!isCollapsed && (
+        <Box
+          ref={containerRef}
+          sx={{
+            width: "100%",
+            display: "flex",
+            flexDirection: "column",
+            gap: "10px",
+          }}
+        >
+          {Array.isArray(cards) && cards.length > 0 && cards.map((card) => (
+            <CardItem
+              key={card.id}
+              card={card}
+              onSelectImage={(id) => {
+                setShowPopup(true);
+                setCurrentCardId(id);
+              }}
+              updateTaskDescription={updateTaskDescription}
+              descriptionInputRef={descriptionInputRef}
+            />
+          ))}
+        </Box>
+      )}
 
       <Typography
         onClick={addNewCard}

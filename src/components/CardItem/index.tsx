@@ -32,6 +32,10 @@ export const CardItem: React.FC<CardItemProps> = ({
         gap: "10px",
         padding: 0,
         transition: "all 0.3s ease",
+        cursor: "grab", // Курсор "grab" при наведении
+        "&:active": {
+          cursor: "grabbing", // Курсор "grabbing" при перетаскивании
+        },
       }}
     >
       <Box

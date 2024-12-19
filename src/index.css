@@ -9,6 +9,8 @@ body {
     font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background: #F5F5F5;
+  transition: 0.2s all;
 }
 p,span,li{
   font-family: 'Inter', sans-serif;

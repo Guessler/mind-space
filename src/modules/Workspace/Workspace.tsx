@@ -2,11 +2,12 @@ import { useParams } from "react-router-dom";
 import { BaseLayout } from "../../layout/base";
 import useSWR from "swr";
 import { workspaceService } from "../../services/workspace.service";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Box, Typography, TextField, Button } from "@mui/material";
 import { MakingBlock } from "../../components/Making-form";
 import { Popup } from "../../components/Popup";
 import { Menu } from "../../components/Menu";
+import Sortable from "sortablejs"; // Импортируем Sortable
 
 export const Workspace = () => {
   const { id } = useParams();
@@ -16,14 +17,48 @@ export const Workspace = () => {
 
   const [addImage, setAddImage] = useState<boolean>(false);
   const [backgroundImage, setBackgroundImage] = useState<string | null>(null);
-  const [tasks, setTasks] = useState<{ id: number; title: string }[]>([]);
+  const [tasks, setTasks] = useState<{ id: number; title: string; cards: { id: number; selectedImage: string | null }[] }[]>([]);
   const [newWorkspaceTitle, setNewWorkspaceTitle] = useState<string>("");
+
+  const containerRef = useRef<HTMLDivElement>(null); // Ссылка на контейнер с блоками
+  const sortableInstance = useRef<Sortable | null>(null); // Экземпляр Sortable
 
   useEffect(() => {
     if (error && !isLoading) {
       console.error(error);
     }
   }, [isLoading, error]);
+
+  useEffect(() => {
+    if (containerRef.current) {
+      sortableInstance.current = new Sortable(containerRef.current, {
+        animation: 150,
+        onStart: () => {
+          // Изменяем курсор на "grabbing" при начале перетаскивания
+          document.body.style.cursor = "grabbing";
+        },
+        onEnd: (event) => {
+          // Возвращаем курсор в исходное состояние после завершения перетаскивания
+          document.body.style.cursor = "auto";
+
+          const { oldIndex, newIndex } = event;
+          if (oldIndex !== undefined && newIndex !== undefined) {
+            const newTasks = [...tasks];
+            const [movedTask] = newTasks.splice(oldIndex, 1);
+            newTasks.splice(newIndex, 0, movedTask);
+            setTasks(newTasks); // Обновляем состояние с новым порядком блоков
+          }
+        },
+      });
+    }
+
+    return () => {
+      if (sortableInstance.current) {
+        sortableInstance.current.destroy(); // Удаляем Sortable при размонтировании
+        sortableInstance.current = null;
+      }
+    };
+  }, [tasks]);
 
   if (isLoading || !id) {
     return null;
@@ -43,18 +78,44 @@ export const Workspace = () => {
       const newWorkspace = {
         id: Date.now(),
         title: newWorkspaceTitle.trim(),
+        cards: [],
       };
       setTasks((prevTasks) => [...prevTasks, newWorkspace]);
       setNewWorkspaceTitle("");
     }
   };
 
-  const handleCardMove = (card: { id: number; selectedImage: string | null }, from: number, to: number) => {
-    if (card) {
-      console.log("Card moved:", card, "from:", from, "to:", to);
-    } else {
-      console.error("Card is undefined");
-    }
+  const handleCardMove = (taskId: number, card: { id: number; selectedImage: string | null }, from: number, to: number) => {
+    setTasks((prevTasks) =>
+      prevTasks.map((task) =>
+        task.id === taskId
+          ? {
+              ...task,
+              cards: task.cards.map((c, index) => (index === from ? { ...c, id: card.id } : c)),
+            }
+          : task
+      )
+    );
+  };
+
+  const handleCardAdd = (taskId: number, card: { id: number; selectedImage: string | null }) => {
+    setTasks((prevTasks) =>
+      prevTasks.map((task) =>
+        task.id === taskId ? { ...task, cards: [...task.cards, card] } : task
+      )
+    );
+  };
+
+  const handleCardUpdate = (taskId: number, card: { id: number; selectedImage: string | null }) => {
+    setTasks((prevTasks) =>
+      prevTasks.map((task) =>
+        task.id === taskId ? { ...task, cards: task.cards.map((c) => (c.id === card.id ? card : c)) } : task
+      )
+    );
+  };
+
+  const handleDeleteBlock = (taskId: number) => {
+    setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
   };
 
   return (
@@ -74,7 +135,9 @@ export const Workspace = () => {
           alignItems: "center",
           justifyContent: "center",
           backgroundImage: backgroundImage ? `url(${backgroundImage})` : "none",
+          transition: "0.2s all",
           backgroundSize: "cover",
+          borderRadius: "0 0 20px 20px",
           backgroundPosition: "center",
           "&:hover .add-image-text": {
             opacity: 0.8,
@@ -166,10 +229,20 @@ export const Workspace = () => {
         </Box>
 
         {tasks.length > 0 && (
-          <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+          <Box
+            ref={containerRef} // Добавляем ссылку на контейнер
+            sx={{ display: "flex", flexWrap: "wrap", gap: "150px" }}
+          >
             {tasks.map((task) => (
               <Box key={task.id} sx={{ height: "auto" }}>
-                <MakingBlock groupName="shared-group" onCardMove={handleCardMove}>
+                <MakingBlock
+                  groupName="shared-group"
+                  cards={task.cards}
+                  onCardMove={(card, from, to) => handleCardMove(task.id, card, from, to)}
+                  onCardAdd={(card) => handleCardAdd(task.id, card)}
+                  onCardUpdate={(card) => handleCardUpdate(task.id, card)}
+                  onDeleteBlock={() => handleDeleteBlock(task.id)} // Передаем обработчик удаления
+                >
                   {task.title}
                 </MakingBlock>
               </Box>

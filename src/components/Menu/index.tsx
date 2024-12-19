@@ -37,6 +37,7 @@ export const Menu = () => {
                 display: "flex",
                 justifyContent: "space-between",
                 position: "fixed",
+                borderRadius: "0 0 10px 10px",
                 top: 0,
                 zIndex: 10,
             }}
