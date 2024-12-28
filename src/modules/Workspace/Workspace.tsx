@@ -34,11 +34,9 @@ export const Workspace = () => {
       sortableInstance.current = new Sortable(containerRef.current, {
         animation: 150,
         onStart: () => {
-          // Изменяем курсор на "grabbing" при начале перетаскивания
           document.body.style.cursor = "grabbing";
         },
         onEnd: (event) => {
-          // Возвращаем курсор в исходное состояние после завершения перетаскивания
           document.body.style.cursor = "auto";
 
           const { oldIndex, newIndex } = event;
@@ -46,7 +44,7 @@ export const Workspace = () => {
             const newTasks = [...tasks];
             const [movedTask] = newTasks.splice(oldIndex, 1);
             newTasks.splice(newIndex, 0, movedTask);
-            setTasks(newTasks); // Обновляем состояние с новым порядком блоков
+            setTasks(newTasks);
           }
         },
       });
@@ -82,6 +80,12 @@ export const Workspace = () => {
       };
       setTasks((prevTasks) => [...prevTasks, newWorkspace]);
       setNewWorkspaceTitle("");
+    }
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      handleAddWorkspace(); // Вызываем функцию добавления workspace
     }
   };
 
@@ -188,6 +192,7 @@ export const Workspace = () => {
           <TextField
             value={newWorkspaceTitle}
             onChange={(e) => setNewWorkspaceTitle(e.target.value)}
+            onKeyDown={handleKeyDown} // Добавляем обработчик нажатия клавиши
             placeholder="Введите название нового workspace"
             sx={{
               width: "100%",

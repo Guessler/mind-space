@@ -1,38 +1,52 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import { Home } from '../modules/Home';
-import SignIn from '../pages/SignIn'
-import SignUp from '../pages/SignUp'
+import SignIn from '../pages/SignIn';
+import SignUp from '../pages/SignUp';
 import { WorkspacePage } from '../pages/Workspace';
 
 export enum Paths {
   SignIn = '/sign-in',
   SignUp = '/sign-up',
   Home = '/',
-  Workspace = '/:id'
+  Workspace = '/:id',
 }
 
+// Компонент для защиты маршрутов
+const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
 
-const authRouter = createBrowserRouter([
-    {
-      path: Paths.Home,
-      element: <Home />
-    },
-    {
-      path: Paths.Workspace,
-      element: <WorkspacePage />
-    },
-]);
+  return children;
+};
 
-const publicRouter = createBrowserRouter([
+const router = createBrowserRouter([
   {
     path: Paths.SignIn,
-    element: <SignIn />
+    element: <SignIn />,
   },
   {
     path: Paths.SignUp,
-    element: <SignUp />
-  }
-])
-  
-export const AuthRoutes = () => <RouterProvider router={authRouter} />;
-export const PublicRoutes = () => <RouterProvider router={publicRouter} />;
+    element: <SignUp />,
+  },
+  {
+    path: Paths.Home,
+    element: (
+      <ProtectedRoute>
+        <Home />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: Paths.Workspace,
+    element: (
+      <ProtectedRoute>
+        <WorkspacePage />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '*',
+    element: <Navigate to={Paths.Home} replace />,
+  },
+]);
+
+export const AuthRoutes = () => <RouterProvider router={router} />;
+export const PublicRoutes = () => <RouterProvider router={router} />;
