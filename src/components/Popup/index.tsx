@@ -1,11 +1,6 @@
 import { Box, Typography } from "@mui/material";
 import { useState } from "react";
-import photo2 from "../../assets/iconsForbg/1623781112_img0.jpg";
-import photo3 from "../../assets/iconsForbg/wallpaperflare.com_wallpaper.jpg";
-import photo5 from "../../assets/iconsForbg/wallpaperflare.com_wallpaper1.jpg";
-import blood from "../../assets/iconsForbg/windows-11-dark-mode-abstract-background-black-background-3840x2160-8710.jpg";
-import none from "../../assets/none.svg";
-import yourImage from "../../assets/your image.svg"
+import { images } from "../../modules/exports/images"; // Импорт изображений
 
 interface Image {
   id: number;
@@ -19,11 +14,11 @@ interface PopupProps {
 }
 
 export const Popup: React.FC<PopupProps> = ({ onClose, onSelectImage }) => {
-  const [images] = useState<Image[]>([
-    { id: 1, url: photo5, alt: "Abstract geometric pattern" },
-    { id: 2, url: photo2, alt: "A beautiful sunset over a mountain range" },
-    { id: 3, url: photo3, alt: "A calm beach with clear blue water" },
-    { id: 5, url: blood, alt: "A dark and intense scene with blood splashes" },
+  const [imagesList] = useState<Image[]>([
+    { id: 1, url: images["wallpaperflare.com_wallpaper1"], alt: "Abstract geometric pattern" },
+    { id: 2, url: images["1623781112_img0"], alt: "A beautiful sunset over a mountain range" },
+    { id: 3, url: images["wallpaperflare.com_wallpaper"], alt: "A calm beach with clear blue water" },
+    { id: 5, url: images["windows-11-dark-mode-abstract-background-black-background-3840x2160-8710"], alt: "A dark and intense scene with blood splashes" },
   ]);
 
   const handleImageClick = (url: string) => {
@@ -73,15 +68,15 @@ export const Popup: React.FC<PopupProps> = ({ onClose, onSelectImage }) => {
           overflowY: "auto",
         }}
       >
-        {images.map((image) => (
+        {imagesList.map((image) => (
           <Box
             key={image.id}
             sx={{ width: 250, height: 200, m: 1, cursor: "pointer" }}
             onClick={() => handleImageClick(image.url)}
           >
             <img
-              src={image.url}
-              alt={image.alt}
+              src={image.url} // Используем src для загрузки изображения
+              alt={image.alt} // Используем alt для описания
               style={{
                 width: "100%",
                 height: "100%",
@@ -107,7 +102,7 @@ export const Popup: React.FC<PopupProps> = ({ onClose, onSelectImage }) => {
           }}
           onClick={() => document.getElementById("fileInput")?.click()}
         >
-          <img src={yourImage} alt={yourImage} />
+          <img src={images["your image"]} alt="Your" />
           <Typography
             sx={{
               fontFamily: 'Unbounded, sans-serif',
@@ -143,7 +138,7 @@ export const Popup: React.FC<PopupProps> = ({ onClose, onSelectImage }) => {
           }}
           onClick={() => handleImageClick("")}
         >
-          <img src={none} alt={none} />
+          <img src={images["none"]} alt="No" /> {/* Исправленный alt */}
           <Typography
             sx={{
               fontFamily: 'Unbounded, sans-serif',

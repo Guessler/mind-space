@@ -4,9 +4,7 @@ import { useState } from "react";
 import useSWR from "swr";
 import { workspaceService } from "../../../services/workspace.service";
 import { useNavigate } from "react-router-dom";
-import cross from "../../../assets/cross.svg";
-import photo from "../../../assets/Photo.png";
-import plus from "../../../assets/plus.svg";
+import { images } from "../../../modules/exports/images"; // Импорт изображений
 
 export const Workspaces = () => {
     const navigate = useNavigate();
@@ -55,7 +53,7 @@ export const Workspaces = () => {
             )}
             <Card onClick={handleOpen} sx={{ width: '240px', minHeight: "250px", display: 'flex', flexDirection: 'column', alignItems: "center", gap: "10px" }}>
                 <Box sx={{ width: '100%', height: '10rem', background: '#526382', opacity: "0.7", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <img src={cross} alt={cross} />
+                    <img src={images["cross"]} alt="cross" /> {/* Используем изображение из объекта images */}
                 </Box>
                 <Typography sx={{ fontFamily: 'Inter, sans-serif', fontSize: "16px", width: "120px", color: "#394D70" }} variant="h4">Create a new workspace</Typography>
             </Card>
@@ -63,8 +61,8 @@ export const Workspaces = () => {
                 <Box onClick={handleClose} sx={{ width: '100%', height: '100vh', position: 'fixed', top: '0', left: '0', background: 'rgba(0, 0, 0, 0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }} className="popup-bg">
                     <Box onClick={handlePopupClick} sx={{ width: '800px', height: "500px", background: "white", borderRadius: "30px", display: "flex", flexDirection: "column", alignItems: "center", gap: "55px" }} className="popup">
                         <Box sx={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                            <Box component="img" alt={photo} src={photo} />
-                            <Box sx={{ position: "absolute" }} component="img" alt={plus} src={plus} />
+                            <Box component="img" alt="photo" src={images["Photo"]} /> {/* Используем изображение из объекта images */}
+                            <Box sx={{ position: "absolute" }} component="img" alt="plus" src={images["plus"]} /> {/* Используем изображение из объекта images */}
                         </Box>
                         <Box sx={{ width: "400px", display: "flex", flexDirection: "column", gap: "10px" }}>
                             <Typography

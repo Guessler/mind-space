@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, TextField } from "@mui/material";
-import cross from "../../assets/cross.svg";
+import cross from "../../assets/svg/cross.svg";
 
 interface Card {
   id: number;

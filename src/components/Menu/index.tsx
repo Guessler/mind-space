@@ -1,20 +1,8 @@
 import { Box, Typography, Drawer } from "@mui/material";
-import flag from "../../assets/1677331596_bogatyr-club-p-flag-rf-trikolor-fon-vkontakte-6 1.svg";
-import quit from "../../assets/free-icon-logout-3889524 1.svg";
-import burger from "../../assets/Group 10.svg";
-import arrow from "../../assets/Vector 1.svg";
-import friends from "../../assets/friends.svg";
-import britain from "../../assets/brit.svg";
 import { useReducer } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Paths } from "../../consts/routes";
-import home from "../../assets/svgIconsForSidebar/Vector.svg";
-import search from "../../assets/svgIconsForSidebar/Vector-1.svg";
-import Friends from "../../assets/svgIconsForSidebar/Vector-2.svg";
-import LogOut from "../../assets/svgIconsForSidebar/log out.svg";
-import icon from "../../assets/image 12.png";
-// import sun from "../../assets/svgIconsForSidebar/sun.svg";
-// import moon from "../../assets/svgIconsForSidebar/moon.svg";
+import { images } from "../../modules/exports/images";
 
 const toggleReducer = (prev: boolean) => !prev;
 
@@ -22,7 +10,6 @@ export const Menu = () => {
   const [isActive, setIsActive] = useReducer(toggleReducer, false);
   const navigate = useNavigate();
   const [openSidebar, setOpenSidebar] = useReducer(toggleReducer, false);
-  // const [changeTheme, setChangeTheme] = useReducer((prev)=> !prev, false)
 
   const handleClick = () => {
     alert("isn't ready yet");
@@ -48,18 +35,18 @@ export const Menu = () => {
     >
       {/* Левая часть меню */}
       <Box sx={{ marginLeft: "20px", gap: "40px", display: "flex", alignItems: "center" }}>
-        <Box onClick={() => setOpenSidebar()} component="img" src={burger} alt="Burger icon" />
-        <Box component="img" src={arrow} alt="Arrow icon" onClick={handleArrowClick} style={{ cursor: "pointer" }} />
+        <Box onClick={() => setOpenSidebar()} component="img" src={images["Group 10"]} alt="Burger icon" />
+        <Box component="img" src={images["Vector 1"]} alt="Arrow icon" onClick={handleArrowClick} style={{ cursor: "pointer" }} />
       </Box>
 
       {/* Правая часть меню */}
       <Box sx={{ marginRight: "20px", gap: "40px", display: "flex", alignItems: "center" }}>
-        <Box sx={{cursor: "pointer"}} component="img" src={moon} alt={moon}></Box>
-        <Box component="img" onClick={handleClick} src={friends} alt="Friends icon" />
+        <Box sx={{cursor: "pointer"}} component="img" src={images["moon"]} alt="moon" />
+        <Box component="img" onClick={handleClick} src={images["friends"]} alt="Friends icon" />
         <Box
           component="img"
           onClick={() => setIsActive()}
-          src={flag}
+          src={images["1677331596_bogatyr-club-p-flag-rf-trikolor-fon-vkontakte-6 1"]}
           alt="Flag icon"
           sx={{ cursor: "pointer" }}
         />
@@ -89,7 +76,7 @@ export const Menu = () => {
                 gap: "10px",
               }}
             >
-              русский <Box component="img" src={flag} alt="Russian flag" />
+              русский <Box component="img" src={images["1677331596_bogatyr-club-p-flag-rf-trikolor-fon-vkontakte-6 1"]} alt="Russian flag" />
             </Typography>
 
             <Typography
@@ -103,12 +90,12 @@ export const Menu = () => {
                 gap: "10px",
               }}
             >
-              english <Box component="img" src={britain} alt="British flag" />
+              english <Box component="img" src={images["brit"]} alt="British flag" />
             </Typography>
           </Box>
         )}
         <Link to={Paths.SignUp}>
-          <Box component="img" src={quit} alt="Logout icon" />
+          <Box component="img" src={images["free-icon-logout-3889524 1"]} alt="Logout icon" />
         </Link>
       </Box>
 
@@ -135,7 +122,7 @@ export const Menu = () => {
         >
           {/* Блок с информацией о пользователе */}
           <Box sx={{ display: "flex", gap: "20px", alignItems: "center" }}>
-            <Box component="img" src={icon} alt="User icon" style={{ width: "50px", height: "50px" }} />
+            <Box component="img" src={images["image 12"]} alt="User icon" style={{ width: "50px", height: "50px" }} />
             <Box>
               <Typography sx={{ color: "white", fontFamily: "Unbounded", fontSize: "24px" }}>
                 User name
@@ -149,16 +136,16 @@ export const Menu = () => {
           {/* Основное меню */}
           <Box sx={{ display: "flex", flexDirection: "column", gap: "30px" }}>
             <Typography sx={{ display: "flex", gap: "50px", color: "white", fontFamily: "Unbounded", fontSize: "24px" }}>
-              <Box src={home} alt="Home icon" component="img" /> Home page
+              <Box src={images["Vector"]} alt="Home icon" component="img" /> Home page
             </Typography>
             <Typography sx={{ display: "flex", gap: "50px", color: "white", fontFamily: "Unbounded", fontSize: "24px" }}>
-              <Box src={search} alt="Search icon" component="img" /> Search
+              <Box src={images["Vector-1"]} alt="Search icon" component="img" /> Search
             </Typography>
             <Typography sx={{ display: "flex", gap: "50px", color: "white", fontFamily: "Unbounded", fontSize: "24px" }}>
-              <Box src={Friends} alt="Friends icon" component="img" /> Friends
+              <Box src={images["Vector-2"]} alt="Friends icon" component="img" /> Friends
             </Typography>
             <Typography sx={{ display: "flex", gap: "50px", color: "white", fontFamily: "Unbounded", fontSize: "24px" }}>
-              <Box src={LogOut} alt="Logout icon" component="img" /> Quit
+              <Box src={images["log out"]} alt="Logout icon" component="img" /> Quit
             </Typography>
           </Box>
 

@@ -9,12 +9,12 @@ import {
   Link as MuiLink,
   Box,
 } from '@mui/material';
-import wallpaper from "../../assets/logwallpaper.png";
 import { authService } from '../../services/auth';
 import { AxiosError, AxiosResponse } from 'axios';
 import { ErrorMessageDto } from '../../types/error';
 import { Paths } from '../../consts/routes';
 import { Link, useNavigate } from 'react-router-dom';
+import { images } from '../../modules/exports/images'; // Импорт изображений
 
 const SignUp: React.FC = () => {
   const [username, setUsername] = useState<string>('');
@@ -60,7 +60,7 @@ const SignUp: React.FC = () => {
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
-      backgroundImage: `url(${wallpaper})`,
+      backgroundImage: `url(${images["logwallpaper"]})`, // Используем изображение из объекта images
       backgroundRepeat: "no-repeat",
       backgroundSize: "cover"
     }}>

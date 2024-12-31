@@ -57,6 +57,7 @@
   },
   "devDependencies": {
     "@types/react-beautiful-dnd": "^13.1.8",
-    "@types/sortablejs": "^1.15.8"
+    "@types/sortablejs": "^1.15.8",
+    "@types/webpack-env": "^1.18.5"
   }
 }
