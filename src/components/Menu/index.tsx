@@ -1,4 +1,4 @@
-import { Box, Typography, Drawer } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { useReducer } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Paths } from "../../consts/routes";
@@ -9,7 +9,6 @@ const toggleReducer = (prev: boolean) => !prev;
 export const Menu = () => {
   const [isActive, setIsActive] = useReducer(toggleReducer, false);
   const navigate = useNavigate();
-  const [openSidebar, setOpenSidebar] = useReducer(toggleReducer, false);
 
   const handleClick = () => {
     alert("isn't ready yet");
@@ -35,13 +34,12 @@ export const Menu = () => {
     >
       {/* Левая часть меню */}
       <Box sx={{ marginLeft: "20px", gap: "40px", display: "flex", alignItems: "center" }}>
-        <Box onClick={() => setOpenSidebar()} component="img" src={images["Group 10"]} alt="Burger icon" />
         <Box component="img" src={images["Vector 1"]} alt="Arrow icon" onClick={handleArrowClick} style={{ cursor: "pointer" }} />
       </Box>
 
       {/* Правая часть меню */}
       <Box sx={{ marginRight: "20px", gap: "40px", display: "flex", alignItems: "center" }}>
-        <Box sx={{cursor: "pointer"}} component="img" src={images["moon"]} alt="moon" />
+        <Box sx={{ cursor: "pointer" }} component="img" src={images["moon"]} alt="moon" />
         <Box component="img" onClick={handleClick} src={images["friends"]} alt="Friends icon" />
         <Box
           component="img"
@@ -98,71 +96,6 @@ export const Menu = () => {
           <Box component="img" src={images["free-icon-logout-3889524 1"]} alt="Logout icon" />
         </Link>
       </Box>
-
-      {/* Сайдбар с использованием Drawer */}
-      <Drawer
-        anchor="left"
-        open={openSidebar}
-        onClose={() => setOpenSidebar()}
-        sx={{
-          "& .MuiDrawer-paper": {
-            width: "380px",
-            backgroundColor: "#394D70",
-            borderRadius: "0 20px 20px 0",
-            padding: "20px",
-          },
-        }}
-      >
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "60px",
-          }}
-        >
-          {/* Блок с информацией о пользователе */}
-          <Box sx={{ display: "flex", gap: "20px", alignItems: "center" }}>
-            <Box component="img" src={images["image 12"]} alt="User icon" style={{ width: "50px", height: "50px" }} />
-            <Box>
-              <Typography sx={{ color: "white", fontFamily: "Unbounded", fontSize: "24px" }}>
-                User name
-              </Typography>
-              <Typography sx={{ color: "#7D8898", fontFamily: "Unbounded" }}>
-                user@mail.com
-              </Typography>
-            </Box>
-          </Box>
-
-          {/* Основное меню */}
-          <Box sx={{ display: "flex", flexDirection: "column", gap: "30px" }}>
-            <Typography sx={{ display: "flex", gap: "50px", color: "white", fontFamily: "Unbounded", fontSize: "24px" }}>
-              <Box src={images["Vector"]} alt="Home icon" component="img" /> Home page
-            </Typography>
-            <Typography sx={{ display: "flex", gap: "50px", color: "white", fontFamily: "Unbounded", fontSize: "24px" }}>
-              <Box src={images["Vector-1"]} alt="Search icon" component="img" /> Search
-            </Typography>
-            <Typography sx={{ display: "flex", gap: "50px", color: "white", fontFamily: "Unbounded", fontSize: "24px" }}>
-              <Box src={images["Vector-2"]} alt="Friends icon" component="img" /> Friends
-            </Typography>
-            <Typography sx={{ display: "flex", gap: "50px", color: "white", fontFamily: "Unbounded", fontSize: "24px" }}>
-              <Box src={images["log out"]} alt="Logout icon" component="img" /> Quit
-            </Typography>
-          </Box>
-
-          {/* Подменю */}
-          <Box sx={{ display: "flex", flexDirection: "column", gap: "20px", marginTop: "40px" }}>
-            <Typography sx={{ color: "#7D8898", fontFamily: "Unbounded", fontSize: "18px" }}>
-              Settings
-            </Typography>
-            <Typography sx={{ color: "#7D8898", fontFamily: "Unbounded", fontSize: "18px" }}>
-              Help
-            </Typography>
-            <Typography sx={{ color: "#7D8898", fontFamily: "Unbounded", fontSize: "18px" }}>
-              About
-            </Typography>
-          </Box>
-        </Box>
-      </Drawer>
     </Box>
   );
 };

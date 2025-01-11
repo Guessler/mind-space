@@ -4,12 +4,12 @@ import { useState } from "react";
 import useSWR from "swr";
 import { workspaceService } from "../../../services/workspace.service";
 import { useNavigate } from "react-router-dom";
-import { images } from "../../../modules/exports/images"; // Импорт изображений
+import { images } from "../../../modules/exports/images";
 
 export const Workspaces = () => {
     const navigate = useNavigate();
     const [isPopupVisible, setIsPopupVisible] = useState(false);
-    const { data, isLoading, mutate } = useSWR('my-workspaces', () => workspaceService.myWorkspaces({ page: 1, limit: 10 }));
+    const { data, isLoading, mutate } = useSWR('my-workspaces', () => workspaceService.myWorkspaces({ page: 1, limit: 100 }));
     const [name, setName] = useState("");
 
     const handleOpen = () => {
@@ -29,13 +29,12 @@ export const Workspaces = () => {
             if (name.trim() === "") {
                 return;
             }
-
             await workspaceService.create(name);
             setName("");
             handleClose();
             mutate();
         } catch (err) {
-            console.error(err);
+            console.error("Ошибка при создании workspace:", err);
         }
     };
 
@@ -46,10 +45,30 @@ export const Workspaces = () => {
     return (
         <Box sx={{ width: '100%', display: 'flex', flexDirection: 'row', gap: "60px", flexWrap: 'wrap', marginTop: "76px" }}>
             {data?.rows.map((item) =>
-                <Card onClick={() => navigate(`/${item.id}`)} sx={{ width: '240px', minHeight: "250px", display: 'flex', flexDirection: 'column', alignItems: "center", gap: "10px" }} key={item.id}>
-                    <Box sx={{ width: '100%', height: '10rem', background: '#526382', opacity: "0.7", display: "flex", alignItems: "center", justifyContent: "center" }}></Box>
-                    <Typography sx={{ fontFamily: 'Inter, sans-serif', fontSize: "16px", width: "120px", color: "#394D70" }} variant="h4">{item.name}</Typography>
-                </Card>
+                <Card 
+                onClick={() => navigate(`/${item.id}`)} 
+                sx={{ width: '240px', minHeight: "250px", display: 'flex', flexDirection: 'column', alignItems: "center", gap: "10px" }} 
+                key={item.id}
+            >
+                <Box sx={{ width: '100%', height: '10rem', background: '#526382', opacity: "0.7", display: "flex", alignItems: "center", justifyContent: "center" }}></Box>
+                <Typography 
+                    sx={{ 
+                        fontFamily: 'Inter, sans-serif', 
+                        fontSize: "16px", 
+                        width: "100%", 
+                        color: "#394D70", 
+                        whiteSpace: 'nowrap', 
+                        overflow: 'hidden', 
+                        textOverflow: 'ellipsis' 
+                    }} 
+                    variant="h4"
+                >
+                    {item.name.length > 20 ? item.name.slice(0, 20) + '...' : item.name}
+                </Typography>
+            </Card>
+            
+
+
             )}
             <Card onClick={handleOpen} sx={{ width: '240px', minHeight: "250px", display: 'flex', flexDirection: 'column', alignItems: "center", gap: "10px" }}>
                 <Box sx={{ width: '100%', height: '10rem', background: '#526382', opacity: "0.7", display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -120,7 +139,7 @@ export const Workspaces = () => {
                         </Box>
                     </Box>
                 </Box>
-            )}
+            )}  
         </Box>
     );
 };

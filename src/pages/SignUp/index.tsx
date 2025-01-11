@@ -14,7 +14,7 @@ import { AxiosError, AxiosResponse } from 'axios';
 import { ErrorMessageDto } from '../../types/error';
 import { Paths } from '../../consts/routes';
 import { Link, useNavigate } from 'react-router-dom';
-import { images } from '../../modules/exports/images'; // Импорт изображений
+import { images } from '../../modules/exports/images';
 
 const SignUp: React.FC = () => {
   const [username, setUsername] = useState<string>('');
@@ -27,32 +27,31 @@ const SignUp: React.FC = () => {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (username === '' || email === '' || password === '') {
-      setError('All fields are required');
-      return;
+        setError('All fields are required');
+        return;
     }
 
     try {
-      await authService.register(username, email, password);
-      setError('');
-      navigate(Paths.SignIn);
+        await authService.register(username, email, password);
+        setError('');
+        navigate(Paths.Home, { state: { username } }); // Передаем username на маршрут Home
     } catch (err) {
-      if (!err || !(err as AxiosError) || !(err as AxiosError)?.response) {
-        setError('Что-то пошло не так...');
-      } else {
-        const { message } = ((err as AxiosError).response as AxiosResponse).data as ErrorMessageDto;
-        if (message === 'INCORRECT_PASSWORD') {
-          setError('Неверный пароль');
+        if (!err || !(err as AxiosError) || !(err as AxiosError)?.response) {
+            setError('Что-то пошло не так...');
+        } else {
+            const { message } = ((err as AxiosError).response as AxiosResponse).data as ErrorMessageDto;
+            if (message === 'INCORRECT_PASSWORD') {
+                setError('Неверный пароль');
+            }
+            if (message === 'INCORRECT_EMAIL') {
+                setError('Неверный email');
+            }
+            if (message === 'USER_WITH_THIS_EMAIL_IS_EXISTS') {
+                setError('User с данным email уже есть');
+            }
         }
-        if (message === 'INCORRECT_EMAIL') {
-          setError('Неверный email');
-        }
-        if (message === 'USER_WITH_THIS_EMAIL_IS_EXISTS') {
-          setError('User с данным email уже есть');
-        }
-      }
     }
-  };
-
+};
   return (
     <Box sx={{
       width: "100%",
@@ -60,7 +59,7 @@ const SignUp: React.FC = () => {
       display: "flex",
       justifyContent: "center",
       alignItems: "center",
-      backgroundImage: `url(${images["logwallpaper"]})`, // Используем изображение из объекта images
+      backgroundImage: `url(${images["logwallpaper"]})`,
       backgroundRepeat: "no-repeat",
       backgroundSize: "cover"
     }}>

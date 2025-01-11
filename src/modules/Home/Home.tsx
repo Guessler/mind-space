@@ -1,12 +1,15 @@
 import { BaseLayout } from "../../layout/base";
 import { Workspaces } from "./components/Workspaces";
 import { Typography, Box } from "@mui/material";
+import { useLocation } from 'react-router-dom';
 
 export const Home = () => {
+    const location = useLocation();
+    const { username } = location.state || {}; // Получаем username из состояния
+
     return (
         <>
             <BaseLayout>
-                {/* Группировка текста с помощью Box */}
                 <Box sx={{ mb: 4 }}>
                     <Typography
                         sx={{
@@ -27,11 +30,10 @@ export const Home = () => {
                             color: "#394D70",
                         }}
                     >
-                        Username
+                        {username || 'User'} {/* Если username не передан, отображаем 'User' */}
                     </Typography>
                 </Box>
 
-                {/* Компонент Workspaces */}
                 <Workspaces />
             </BaseLayout>
         </>
