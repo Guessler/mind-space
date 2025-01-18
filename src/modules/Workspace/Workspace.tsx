@@ -31,7 +31,16 @@ const useLocalStorage = (key: string, initialValue: string | null) => {
 
 // Кастомный хук для работы с задачами
 const useTasks = () => {
-  const [tasks, setTasks] = useState<Task[]>([]);
+  // Загружаем задачи из localStorage при инициализации
+  const [tasks, setTasks] = useState<Task[]>(() => {
+    const storedTasks = localStorage.getItem("tasks");
+    return storedTasks ? JSON.parse(storedTasks) : [];
+  });
+
+  // Сохраняем задачи в localStorage при каждом изменении
+  useEffect(() => {
+    localStorage.setItem("tasks", JSON.stringify(tasks));
+  }, [tasks]);
 
   const addTask = useCallback((title: string) => {
     if (title.trim()) {
