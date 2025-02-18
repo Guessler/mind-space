@@ -27,31 +27,32 @@ const SignUp: React.FC = () => {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     if (username === '' || email === '' || password === '') {
-        setError('All fields are required');
-        return;
+      setError('All fields are required');
+      return;
     }
 
     try {
-        await authService.register(username, email, password);
-        setError('');
-        navigate(Paths.Home, { state: { username } }); // Передаем username на маршрут Home
+      await authService.register(username, email, password);
+      setError('');
+      navigate(Paths.SignIn); // Перенаправляем на страницу входа после успешной регистрации
     } catch (err) {
-        if (!err || !(err as AxiosError) || !(err as AxiosError)?.response) {
-            setError('Что-то пошло не так...');
-        } else {
-            const { message } = ((err as AxiosError).response as AxiosResponse).data as ErrorMessageDto;
-            if (message === 'INCORRECT_PASSWORD') {
-                setError('Неверный пароль');
-            }
-            if (message === 'INCORRECT_EMAIL') {
-                setError('Неверный email');
-            }
-            if (message === 'USER_WITH_THIS_EMAIL_IS_EXISTS') {
-                setError('User с данным email уже есть');
-            }
+      if (!err || !(err as AxiosError) || !(err as AxiosError)?.response) {
+        setError('Что-то пошло не так...');
+      } else {
+        const { message } = ((err as AxiosError).response as AxiosResponse).data as ErrorMessageDto;
+        if (message === 'INCORRECT_PASSWORD') {
+          setError('Неверный пароль');
         }
+        if (message === 'INCORRECT_EMAIL') {
+          setError('Неверный email');
+        }
+        if (message === 'USER_WITH_THIS_EMAIL_IS_EXISTS') {
+          setError('Пользователь с данным email уже существует');
+        }
+      }
     }
-};
+  };
+
   return (
     <Box sx={{
       width: "100%",
