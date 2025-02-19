@@ -1,16 +1,40 @@
 import { Box, Button, Card, TextField, Typography } from "@mui/material";
-import "./Workspaces.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import useSWR from "swr";
 import { workspaceService } from "../../../services/workspace.service";
 import { useNavigate } from "react-router-dom";
 import { images } from "../../../modules/exports/images";
+
+// Кастомный хук для работы с localStorage
+const useLocalStorage = (key: string, initialValue: string | null) => {
+    const [value, setValue] = useState(() => {
+        const storedValue = localStorage.getItem(key);
+        return storedValue ? storedValue : initialValue;
+    });
+
+    
+
+    useEffect(() => {
+        if (value !== null) {
+            localStorage.setItem(key, value);
+        }
+    }, [key, value]);
+
+    return [value, setValue] as const;
+};
+
+// Функция для проверки корректности URL изображения
+const isValidImageUrl = (url: string | null) => {
+    if (!url) return false;
+    return /\.(jpg|jpeg|png|gif|bmp|webp)$/.test(url); // Проверка на расширения изображений
+};
 
 export const Workspaces = () => {
     const navigate = useNavigate();
     const [isPopupVisible, setIsPopupVisible] = useState(false);
     const { data, isLoading, mutate } = useSWR('my-workspaces', () => workspaceService.myWorkspaces({ page: 1, limit: 100 }));
     const [name, setName] = useState("");
+    const [backgroundImage] = useLocalStorage('workspaceBackgroundImage', null); // Получаем изображение из localStorage
 
     const handleOpen = () => {
         setIsPopupVisible(true);
@@ -44,35 +68,41 @@ export const Workspaces = () => {
 
     return (
         <Box sx={{ width: '100%', display: 'flex', flexDirection: 'row', gap: "60px", flexWrap: 'wrap', marginTop: "76px" }}>
-            {data?.rows.map((item) =>
+            {data?.rows.map((item) => (
                 <Card 
-                onClick={() => navigate(`/${item.id}`)} 
-                sx={{ width: '240px', minHeight: "250px", display: 'flex', flexDirection: 'column', alignItems: "center", gap: "10px" }} 
-                key={item.id}
-            >
-                <Box sx={{ width: '100%', height: '10rem', background: '#526382', opacity: "0.7", display: "flex", alignItems: "center", justifyContent: "center" }}></Box>
-                <Typography 
-                    sx={{ 
-                        fontFamily: 'Inter, sans-serif', 
-                        fontSize: "16px", 
-                        width: "100%", 
-                        color: "#394D70", 
-                        whiteSpace: 'nowrap', 
-                        overflow: 'hidden', 
-                        textOverflow: 'ellipsis' 
-                    }} 
-                    variant="h4"
+                    onClick={() => navigate(`/${item.id}`)} 
+                    sx={{ width: '240px', minHeight: "250px", display: 'flex', flexDirection: 'column', alignItems: "center", gap: "10px" }} 
+                    key={item.id}
                 >
-                    {item.name.length > 20 ? item.name.slice(0, 20) + '...' : item.name}
-                </Typography>
-            </Card>
-            
-
-
-            )}
+                    <Box sx={{ 
+                        width: '100%', 
+                        height: '10rem', 
+                        backgroundImage: isValidImageUrl(backgroundImage) ? `url(${backgroundImage})` : '#526382', // Проверяем корректность изображения
+                        backgroundSize: 'cover', 
+                        opacity: "0.7", 
+                        display: "flex", 
+                        alignItems: "center", 
+                        justifyContent: "center" 
+                    }}></Box>
+                    <Typography 
+                        sx={{ 
+                            fontFamily: 'Inter, sans-serif', 
+                            fontSize: "16px", 
+                            width: "100%", 
+                            color: "#394D70", 
+                            whiteSpace: 'nowrap', 
+                            overflow: 'hidden', 
+                            textOverflow: 'ellipsis' 
+                        }} 
+                        variant="h4"
+                    >
+                        {item.name.length > 20 ? item.name.slice(0, 20) + '...' : item.name}
+                    </Typography>
+                </Card>
+            ))}
             <Card onClick={handleOpen} sx={{ width: '240px', minHeight: "250px", display: 'flex', flexDirection: 'column', alignItems: "center", gap: "10px" }}>
                 <Box sx={{ width: '100%', height: '10rem', background: '#526382', opacity: "0.7", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <img src={images["cross"]} alt="cross" /> {/* Используем изображение из объекта images */}
+                    <img src={images["cross"]} alt="cross" />
                 </Box>
                 <Typography sx={{ fontFamily: 'Inter, sans-serif', fontSize: "16px", width: "120px", color: "#394D70" }} variant="h4">Create a new workspace</Typography>
             </Card>
