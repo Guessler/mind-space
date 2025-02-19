@@ -121,12 +121,12 @@ export const MakingBlock: React.FC<MakingBlockProps> = ({
         flexDirection: "column",
         alignItems: "flex-start",
         gap: "10px",
-        position: "relative", // Добавляем позиционирование для кнопки удаления
+        position: "relative",
       }}
     >
 
         <Typography
-        onClick={onDeleteBlock} // Вызываем коллбэк для удаления
+        onClick={onDeleteBlock} 
         sx={{
           fontFamily: "Unbounded, sans-serif",
           position: "absolute",

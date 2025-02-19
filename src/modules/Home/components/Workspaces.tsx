@@ -1,18 +1,16 @@
 import { Box, Button, Card, TextField, Typography } from "@mui/material";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import useSWR from "swr";
 import { workspaceService } from "../../../services/workspace.service";
 import { useNavigate } from "react-router-dom";
 import { images } from "../../../modules/exports/images";
+import { Popup } from "../../../components/Popup"; // Импортируем Popup
 
-// Кастомный хук для работы с localStorage
 const useLocalStorage = (key: string, initialValue: string | null) => {
     const [value, setValue] = useState(() => {
         const storedValue = localStorage.getItem(key);
         return storedValue ? storedValue : initialValue;
     });
-
-    
 
     useEffect(() => {
         if (value !== null) {
@@ -23,30 +21,35 @@ const useLocalStorage = (key: string, initialValue: string | null) => {
     return [value, setValue] as const;
 };
 
-// Функция для проверки корректности URL изображения
-const isValidImageUrl = (url: string | null) => {
-    if (!url) return false;
-    return /\.(jpg|jpeg|png|gif|bmp|webp)$/.test(url); // Проверка на расширения изображений
-};
-
 export const Workspaces = () => {
     const navigate = useNavigate();
-    const [isPopupVisible, setIsPopupVisible] = useState(false);
+    const [isMainModalVisible, setIsMainModalVisible] = useState(false); // For the main modal
+    const [isImagePopupVisible, setIsImagePopupVisible] = useState(false); // For the image selection Popup
     const { data, isLoading, mutate } = useSWR('my-workspaces', () => workspaceService.myWorkspaces({ page: 1, limit: 100 }));
     const [name, setName] = useState("");
-    const [backgroundImage] = useLocalStorage('workspaceBackgroundImage', null); // Получаем изображение из localStorage
+    const [backgroundImage, setBackgroundImage] = useLocalStorage('workspaceBackgroundImage', null); // Получаем изображение из localStorage
+    const [selectedImage, setSelectedImage] = useState<string | null>(null); // Состояние для выбранного изображения
+    
 
-    const handleOpen = () => {
-        setIsPopupVisible(true);
+    const handleOpenMainModal = () => {
+        setIsMainModalVisible(true); // Open the main modal
     };
 
-    const handleClose = () => {
-        setIsPopupVisible(false);
+    const handleCloseMainModal = () => {
+        setIsMainModalVisible(false); // Close the main modal
     };
 
-    function handlePopupClick(e: React.MouseEvent<HTMLDivElement>) {
-        e.stopPropagation();
-    }
+    const handleOpenImagePopup = () => {
+        setIsImagePopupVisible(true); // Open the image selection Popup
+    };
+
+    const handleCloseImagePopup = () => {
+        setIsImagePopupVisible(false); // Close the image selection Popup
+    };
+
+    const handlePopupClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        e.stopPropagation(); // Prevent event bubbling
+    };
 
     const handleCreate = async () => {
         try {
@@ -55,11 +58,19 @@ export const Workspaces = () => {
             }
             await workspaceService.create(name);
             setName("");
-            handleClose();
-            mutate();
+            handleCloseMainModal(); // Close the main modal after creation
+            mutate(); // Refresh the workspace data
         } catch (err) {
             console.error("Ошибка при создании workspace:", err);
         }
+    };
+
+    // Function to handle image selection
+    const handleSelectImage = (url: string) => {
+        setBackgroundImage(url); // Set the selected image as the background
+        handleCloseImagePopup(); 
+        setSelectedImage(url); // Set the selected image
+        handleCloseImagePopup(); // Close the image popup after selection
     };
 
     if (isLoading) {
@@ -69,49 +80,53 @@ export const Workspaces = () => {
     return (
         <Box sx={{ width: '100%', display: 'flex', flexDirection: 'row', gap: "60px", flexWrap: 'wrap', marginTop: "76px" }}>
             {data?.rows.map((item) => (
-                <Card 
-                    onClick={() => navigate(`/${item.id}`)} 
-                    sx={{ width: '240px', minHeight: "250px", display: 'flex', flexDirection: 'column', alignItems: "center", gap: "10px" }} 
+                <Card
+                    onClick={() => navigate(`/${item.id}`)}
+                    sx={{ width: '240px', minHeight: "250px", display: 'flex', flexDirection: 'column', alignItems: "center", gap: "10px" }}
                     key={item.id}
                 >
-                    <Box sx={{ 
-                        width: '100%', 
-                        height: '10rem', 
-                        backgroundImage: isValidImageUrl(backgroundImage) ? `url(${backgroundImage})` : '#526382', // Проверяем корректность изображения
-                        backgroundSize: 'cover', 
-                        opacity: "0.7", 
-                        display: "flex", 
-                        alignItems: "center", 
-                        justifyContent: "center" 
+                    <Box sx={{
+                        width: '100%',
+                        height: '10rem',
+                        backgroundImage: backgroundImage ? `url(${backgroundImage})` : '#526382',
+                        backgroundSize: 'cover',
+                        opacity: "0.8",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center"
                     }}></Box>
-                    <Typography 
-                        sx={{ 
-                            fontFamily: 'Inter, sans-serif', 
-                            fontSize: "16px", 
-                            width: "100%", 
-                            color: "#394D70", 
-                            whiteSpace: 'nowrap', 
-                            overflow: 'hidden', 
-                            textOverflow: 'ellipsis' 
-                        }} 
+                    <Typography
+                        sx={{
+                            fontFamily: 'Inter, sans-serif',
+                            fontSize: "16px",
+                            width: "100%",
+                            color: "#394D70",
+                            whiteSpace: 'nowrap',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis'
+                        }}
                         variant="h4"
                     >
                         {item.name.length > 20 ? item.name.slice(0, 20) + '...' : item.name}
                     </Typography>
                 </Card>
             ))}
-            <Card onClick={handleOpen} sx={{ width: '240px', minHeight: "250px", display: 'flex', flexDirection: 'column', alignItems: "center", gap: "10px" }}>
+            <Card onClick={handleOpenMainModal} sx={{ width: '240px', minHeight: "250px", display: 'flex', flexDirection: 'column', alignItems: "center", gap: "10px" }}>
                 <Box sx={{ width: '100%', height: '10rem', background: '#526382', opacity: "0.7", display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <img src={images["cross"]} alt="cross" />
                 </Box>
                 <Typography sx={{ fontFamily: 'Inter, sans-serif', fontSize: "16px", width: "120px", color: "#394D70" }} variant="h4">Create a new workspace</Typography>
             </Card>
-            {isPopupVisible && (
-                <Box onClick={handleClose} sx={{ width: '100%', height: '100vh', position: 'fixed', top: '0', left: '0', background: 'rgba(0, 0, 0, 0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }} className="popup-bg">
+
+            {isMainModalVisible && (
+                <Box onClick={handleCloseMainModal} sx={{ width: '100%', height: '100vh', position: 'fixed', top: '0', left: '0', background: 'rgba(0, 0, 0, 0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }} className="popup-bg">
                     <Box onClick={handlePopupClick} sx={{ width: '800px', height: "500px", background: "white", borderRadius: "30px", display: "flex", flexDirection: "column", alignItems: "center", gap: "55px" }} className="popup">
                         <Box sx={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                            <Box component="img" alt="photo" src={images["Photo"]} /> {/* Используем изображение из объекта images */}
-                            <Box sx={{ position: "absolute" }} component="img" alt="plus" src={images["plus"]} /> {/* Используем изображение из объекта images */}
+                            <Box sx={{
+                                width: "800px", height: "210px", borderRadius: "10px 10px 0 0", objectFit: "cover",
+                                objectPosition: "center",
+                            }} component="img" alt="photo" src={selectedImage || images["Photo"]} />
+                            <Box sx={{ position: "absolute" }} component="img" alt="plus" src={images["plus"]} onClick={handleOpenImagePopup} /> {/* Open Image Popup */}
                         </Box>
                         <Box sx={{ width: "400px", display: "flex", flexDirection: "column", gap: "10px" }}>
                             <Typography
@@ -169,7 +184,11 @@ export const Workspaces = () => {
                         </Box>
                     </Box>
                 </Box>
-            )}  
+            )}
+
+            {isImagePopupVisible && (
+                <Popup onClose={handleCloseImagePopup} onSelectImage={handleSelectImage} />
+            )}
         </Box>
     );
 };

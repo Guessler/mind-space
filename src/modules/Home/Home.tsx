@@ -30,7 +30,7 @@ export const Home = () => {
               color: "#394D70",
             }}
           >
-            {email || 'User'} {/* Отображаем email или "User", если email отсутствует */}
+            {email || 'UserName'} {/* Отображаем email или "User", если email отсутствует */}
           </Typography>
         </Box>
 
