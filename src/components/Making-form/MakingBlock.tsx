@@ -1,4 +1,4 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, TextField } from "@mui/material";
 import { ReactNode, useEffect, useRef, useState } from "react";
 import { Popup } from "../Popup";
 import { CardItem } from "../CardItem";
@@ -17,7 +17,8 @@ interface MakingBlockProps {
   onCardMove?: (card: Card, from: number, to: number) => void;
   onCardAdd?: (card: Card) => void;
   onCardUpdate?: (card: Card) => void;
-  onDeleteBlock?: () => void; // Добавляем коллбэк для удаления блока
+  onDeleteBlock?: () => void;
+  onUpdateTitle?: (title: string) => void; // Добавлено свойство для обновления названия
 }
 
 export const MakingBlock: React.FC<MakingBlockProps> = ({
@@ -27,7 +28,8 @@ export const MakingBlock: React.FC<MakingBlockProps> = ({
   onCardMove,
   onCardAdd,
   onCardUpdate,
-  onDeleteBlock, // Добавляем коллбэк для удаления
+  onDeleteBlock,
+  onUpdateTitle, // Получаем функцию обновления названия
 }) => {
   const [editDescriptionId] = useState<number | null>(null);
   const descriptionInputRef = useRef<HTMLInputElement>(null);
@@ -36,9 +38,27 @@ export const MakingBlock: React.FC<MakingBlockProps> = ({
   const containerRef = useRef<HTMLDivElement>(null);
   const sortableInstance = useRef<Sortable | null>(null);
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
+  const [title, setTitle] = useState<string>(children ? children.toString() : ""); // Состояние для названия
+  const [isEditing, setIsEditing] = useState<boolean>(false); // Состояние для редактирования
 
   const handleToggleCollapse = () => {
     setIsCollapsed((prev) => !prev);
+  };
+
+  const handleTitleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newTitle = event.target.value;
+    setTitle(newTitle);
+    if (onUpdateTitle) {
+      onUpdateTitle(newTitle); // Вызываем функцию обновления названия
+    }
+  };
+
+  const handleTitleClick = () => {
+    setIsEditing(true);
+  };
+
+  const handleBlur = () => {
+    setIsEditing(false);
   };
 
   useEffect(() => {
@@ -66,7 +86,7 @@ export const MakingBlock: React.FC<MakingBlockProps> = ({
 
     return () => {
       if (sortableInstance.current) {
-        sortableInstance.current.destroy(); // Удаляем Sortable при размонтировании
+        sortableInstance.current.destroy();
         sortableInstance.current = null;
       }
     };
@@ -82,7 +102,7 @@ export const MakingBlock: React.FC<MakingBlockProps> = ({
       if (updatedCard) {
         const updatedCardWithImage = { ...updatedCard, selectedImage: url };
         if (onCardUpdate) {
-          onCardUpdate(updatedCardWithImage); // Обновляем состояние через коллбэк
+          onCardUpdate(updatedCardWithImage);
         }
       }
     }
@@ -104,7 +124,7 @@ export const MakingBlock: React.FC<MakingBlockProps> = ({
     if (updatedCard) {
       const updatedCardWithDescription = { ...updatedCard, taskDescription: description };
       if (onCardUpdate) {
-        onCardUpdate(updatedCardWithDescription); // Обновляем состояние через коллбэк
+        onCardUpdate(updatedCardWithDescription);
       }
     }
   };
@@ -125,8 +145,8 @@ export const MakingBlock: React.FC<MakingBlockProps> = ({
       }}
     >
 
-        <Typography
-        onClick={onDeleteBlock} 
+      <Typography
+        onClick={onDeleteBlock}
         sx={{
           fontFamily: "Unbounded, sans-serif",
           position: "absolute",
@@ -135,26 +155,53 @@ export const MakingBlock: React.FC<MakingBlockProps> = ({
           cursor: "pointer",
           color: "#394D70",
         }}
-        >remove</Typography>
+      >
+        remove
+      </Typography>
 
       {showPopup && (
         <Popup onClose={handleClosePopup} onSelectImage={handleSelectImage} />
       )}
 
-      <Typography
-        sx={{
-          fontFamily: "Unbounded, sans-serif",
-          fontSize: 20,
-          fontWeight: "900",
-          lineHeight: 1.1,
-          color: "#394D70",
-          margin: 0,
-          cursor: "pointer",
-        }}
-        onClick={handleToggleCollapse}
-      >
-        {children} {isCollapsed ? ">" : "v"}
-      </Typography>
+      {isEditing ? (
+        <TextField
+          value={title}
+          onChange={handleTitleChange}
+          onBlur={handleBlur}
+          autoFocus
+          sx={{
+            fontFamily: "Unbounded, sans-serif",
+            fontSize: 20,
+            fontWeight: "900",
+            lineHeight: 1.1,
+            color: "#394D70",
+            margin: 0,
+            width: "100%",
+            "& .MuiOutlinedInput-root": {
+              border: "none", // Убираем рамку
+              boxShadow: "none", // Убираем тень
+            },
+            "& .MuiInputBase-input": {
+              padding: 0, // Убираем отступы
+            },
+          }}
+        />
+      ) : (
+        <Typography
+          onClick={handleTitleClick}
+          sx={{
+            fontFamily: "Unbounded, sans-serif",
+            fontSize: 20,
+            fontWeight: "900",
+            lineHeight: 1.1,
+            color: "#394D70",
+            margin: 0,
+            cursor: "pointer",
+          }}
+        >
+          {title}
+        </Typography>
+      )}
 
       {!isCollapsed && (
         <Box
