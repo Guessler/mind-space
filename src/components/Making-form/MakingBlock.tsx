@@ -82,7 +82,7 @@ export const MakingBlock: React.FC<MakingBlockProps> = ({
       if (updatedCard) {
         const updatedCardWithImage = { ...updatedCard, selectedImage: url };
         if (onCardUpdate) {
-          onCardUpdate(updatedCardWithImage); // Обновляем состояние через коллбэк
+          onCardUpdate(updatedCardWithImage);
         }
       }
     }
