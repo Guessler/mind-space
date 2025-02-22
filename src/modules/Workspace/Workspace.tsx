@@ -86,47 +86,7 @@ const useTasks = () => {
     setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
   }, []);
 
-  return { tasks, addTask, moveCard, addCard, updateCard, deleteTask };
-};
-
-// Компонент для фонового изображения
-const HeaderImageBlock = ({ backgroundImage, onAddImage }: { backgroundImage: string | null; onAddImage: () => void }) => {
-  return (
-    <Box
-      sx={{
-        width: "100%",
-        minHeight: "50px",
-        height: backgroundImage ? "300px" : "50px",
-        marginTop: backgroundImage ? "" : "50px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundImage: backgroundImage ? `url(${backgroundImage})` : "none",
-        transition: "0.2s all",
-        backgroundSize: "cover",
-        borderRadius: "0 0 20px 20px",
-        backgroundPosition: "center",
-        "&:hover .add-image-text": {
-          opacity: 0.8,
-        },
-      }}
-    >
-      <Typography
-        className="add-image-text"
-        onClick={onAddImage}
-        sx={{
-          fontFamily: "Unbounded",
-          color: backgroundImage ? "#FFFFFF" : "#394D70",
-          fontWeight: 900,
-          opacity: 0.1,
-          cursor: "pointer",
-          transition: "opacity 0.5s ease",
-        }}
-      >
-        Добавить изображение
-      </Typography>
-    </Box>
-  );
+  return { tasks, addTask, moveCard, addCard, updateCard, deleteTask, setTasks }; // Возвращаем setTasks
 };
 
 // Основной компонент Workspace
@@ -138,7 +98,7 @@ export const Workspace = () => {
 
   const [addImage, setAddImage] = useState(false);
   const [backgroundImage, setBackgroundImage] = useLocalStorage('workspaceBackgroundImage', null);
-  const { tasks, addTask, moveCard, addCard, updateCard, deleteTask } = useTasks();
+  const { tasks, addTask, moveCard, addCard, updateCard, deleteTask, setTasks } = useTasks(); // Получаем setTasks
   const [newWorkspaceTitle, setNewWorkspaceTitle] = useState("");
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -187,12 +147,49 @@ export const Workspace = () => {
     }
   };
 
+  const handleUpdateBlockTitle = (taskId: number, newTitle: string) => {
+    setTasks((prevTasks: Task[]) =>
+      prevTasks.map((task) =>
+        task.id === taskId ? { ...task, title: newTitle } : task
+      )
+    );
+  };
+
   return (
     <>
       <Menu />
       {addImage && <Popup onClose={() => setAddImage(false)} onSelectImage={handleSelectImage} />}
 
-      <HeaderImageBlock backgroundImage={backgroundImage} onAddImage={() => setAddImage(true)} />
+      <Box
+        sx={{
+          width: "100%",
+          minHeight: "50px",
+          height: backgroundImage ? "300px" : "50px",
+          marginTop: backgroundImage ? "" : "50px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundImage: backgroundImage ? `url(${backgroundImage})` : "none",
+          transition: "0.2s all",
+          backgroundSize: "cover",
+          borderRadius: "0 0 20px 20px",
+          backgroundPosition: "center",
+        }}
+      >
+        <Typography
+          onClick={() => setAddImage(true)}
+          sx={{
+            fontFamily: "Unbounded",
+            color: backgroundImage ? "#FFFFFF" : "#394D70",
+            fontWeight: 900,
+            opacity: 0.1,
+            cursor: "pointer",
+            transition: "opacity 0.5s ease",
+          }}
+        >
+          Добавить изображение
+        </Typography>
+      </Box>
 
       <BaseLayout>
         <Typography variant="h3" sx={{ fontSize: 40, fontWeight: 900, fontFamily: "Unbounded, sans-serif", color: "#394D70", marginBottom: "50px", marginTop: "20px" }}>
@@ -244,6 +241,7 @@ export const Workspace = () => {
                   onCardAdd={(card) => addCard(task.id, card)}
                   onCardUpdate={(card) => updateCard(task.id, card)}
                   onDeleteBlock={() => deleteTask(task.id)}
+                  onUpdateTitle={(newTitle) => handleUpdateBlockTitle(task.id, newTitle)} // Передаем функцию обновления названия
                 >
                   {task.title}
                 </MakingBlock>

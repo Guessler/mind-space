@@ -16,7 +16,7 @@ import { ErrorMessageDto } from '../../types/error';
 import { Paths } from '../../consts/routes';
 import { observer } from 'mobx-react-lite';
 import { context } from '../..';
-import { images } from '../../modules/exports/images'; // Импорт изображений
+import { images } from '../../modules/exports/images';
 
 const SignIn: React.FC = observer(() => {
   const [email, setEmail] = useState<string>('');
@@ -33,16 +33,18 @@ const SignIn: React.FC = observer(() => {
       return;
     }
     setError('');
-
+  
     try {
       const result = await authService.login(email, password);
       if (!result) {
         throw new Error("SOMETHING_WENT_WRONG");
       }
-
+  
       localStorage.setItem('token', result);
       ctx?.authStore?.setIsAuth(true);
-      navigate(Paths.Home);
+  
+      // Передаем email в состояние маршрутизации
+      navigate(Paths.Home, { state: { email } });
       console.log(Paths.Home);
     } catch (err) {
       if (!err || !(err as AxiosError) || !(err as AxiosError)?.response) {
