@@ -138,7 +138,7 @@ export const Popup: React.FC<PopupProps> = ({ onClose, onSelectImage }) => {
           }}
           onClick={() => handleImageClick("")}
         >
-          <img src={images["none"]} alt="No" /> {/* Исправленный alt */}
+          <img src={images["none"]} alt="No" />
           <Typography
             sx={{
               fontFamily: 'Unbounded, sans-serif',

@@ -43,7 +43,6 @@ const SignIn: React.FC = observer(() => {
       localStorage.setItem('token', result);
       ctx?.authStore?.setIsAuth(true);
   
-      // Передаем email в состояние маршрутизации
       navigate(Paths.Home, { state: { email } });
       console.log(Paths.Home);
     } catch (err) {
@@ -66,7 +65,7 @@ const SignIn: React.FC = observer(() => {
     <Box sx={{
       width: "100%",
       height: "100vh",
-      backgroundImage: `url(${images["darklogwallpaper"]})`, // Используем изображение из объекта images
+      backgroundImage: `url(${images["darklogwallpaper"]})`,
       backgroundRepeat: "no-repeat",
       backgroundSize: "cover",
       display: "flex",

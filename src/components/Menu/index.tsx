@@ -29,12 +29,10 @@ export const Menu = () => {
         zIndex: 10,
       }}
     >
-      {/* Левая часть меню */}
       <Box sx={{ marginLeft: "20px", gap: "40px", display: "flex", alignItems: "center" }}>
         <Box component="img" src={images["Vector 1"]} alt="Arrow icon" onClick={handleArrowClick} style={{ cursor: "pointer" }} />
       </Box>
 
-      {/* Правая часть меню */}
       <Box sx={{ marginRight: "20px", gap: "40px", display: "flex", alignItems: "center" }}>
         {/* <Box sx={{ cursor: "pointer" }} component="img" src={images["moon"]} alt="moon" /> */}
         <Box component="img" onClick={handleClick} src={images["friends"]} alt="Friends icon" />

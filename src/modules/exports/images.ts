@@ -3,8 +3,8 @@ type ImageModules = Record<string, string>;
 const importImages = (context: __WebpackModuleApi.RequireContext): ImageModules => {
   return context.keys().reduce((images, path) => {
     const key = path
-      .replace(/^\.\//, "") // Убираем ./ в начале пути
-      .replace(/\.(png|jpe?g|gif|svg)$/, ""); // Убираем расширение файла
+      .replace(/^\.\//, "")
+      .replace(/\.(png|jpe?g|gif|svg)$/, "");
     images[key] = context(path).default || context(path);
     return images;
   }, {} as ImageModules);

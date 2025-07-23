@@ -5,7 +5,7 @@ import { useLocation } from 'react-router-dom';
 
 export const Home = () => {
   const location = useLocation();
-  const { email } = location.state || {}; // Получаем email из состояния маршрутизации
+  const { email } = location.state || {};
 
   return (
     <BaseLayout>
@@ -29,7 +29,7 @@ export const Home = () => {
             color: "#394D70",
           }}
         >
-          {email || 'UserName'} {/* Отображаем email или "User", если email отсутствует */}
+          {email || 'UserName'}
         </Typography>
       </Box>
 
