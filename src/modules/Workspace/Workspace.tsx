@@ -1,113 +1,21 @@
-// src/modules/Workspace/Workspace.tsx
+import React, { useState, useEffect, useCallback } from "react";
+import { DndProvider } from "react-dnd";
+import { HTML5Backend } from "react-dnd-html5-backend";
 import { useParams } from "react-router-dom";
 import { BaseLayout } from "../../layout/base";
 import useSWR from "swr";
 import { workspaceService } from "../../services/workspace.service";
-import { useEffect, useRef, useState, useCallback } from "react";
 import { Box, Typography, TextField, Button } from "@mui/material";
 import { Popup } from "../../components/Popup";
 import { Menu } from "../../components/Menu";
-import Sortable from "sortablejs";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
+import { Card } from "../../components/CardItem";
 import { MakingBlock } from "../../components/Making-form";
 
-type Card = { id: string; selectedImage: string | null; taskDescription?: string };
-type Task = { id: string; title: string; cards: Card[] };
-
-const useTasks = (workspaceId: string) => {
-  const [tasks, setTasks] = useState<Task[]>(() => {
-    const storedTasks = localStorage.getItem(`tasks-${workspaceId}`);
-    return storedTasks ? JSON.parse(storedTasks) : [];
-  });
-
-  useEffect(() => {
-    localStorage.setItem(`tasks-${workspaceId}`, JSON.stringify(tasks));
-  }, [tasks, workspaceId]);
-
-  const addTask = useCallback((title: string) => {
-    if (title.trim()) {
-      const newTask: Task = {
-        id: Date.now().toString(),
-        title: title.trim(),
-        cards: [],
-      };
-      setTasks((prev) => [...prev, newTask]);
-    }
-  }, []);
-
-  const moveCard = useCallback(
-    (cardId: string, fromBlockId: string, toBlockId: string, newIndex: number) => {
-      setTasks((prev) => {
-        const newTasks = [...prev];
-        const fromBlockIndex = newTasks.findIndex((b) => b.id === fromBlockId);
-        const toBlockIndex = newTasks.findIndex((b) => b.id === toBlockId);
-        if (fromBlockIndex === -1 || toBlockIndex === -1) return prev;
-
-        const card = newTasks[fromBlockIndex].cards.find((c) => c.id === cardId);
-        if (!card) return prev;
-
-        newTasks[fromBlockIndex] = {
-          ...newTasks[fromBlockIndex],
-          cards: newTasks[fromBlockIndex].cards.filter((c) => c.id !== cardId),
-        };
-
-        newTasks[toBlockIndex] = {
-          ...newTasks[toBlockIndex],
-          cards: [
-            ...newTasks[toBlockIndex].cards.slice(0, newIndex),
-            card,
-            ...newTasks[toBlockIndex].cards.slice(newIndex),
-          ],
-        };
-
-        return newTasks;
-      });
-    },
-    []
-  );
-
-  const addCard = useCallback((taskId: string, card: Card) => {
-    setTasks((prev) =>
-      prev.map((task) =>
-        task.id === taskId ? { ...task, cards: [...task.cards, card] } : task
-      )
-    );
-  }, []);
-
-  const updateCard = useCallback((taskId: string, card: Card) => {
-    setTasks((prev) =>
-      prev.map((task) =>
-        task.id === taskId
-          ? { ...task, cards: task.cards.map((c) => (c.id === card.id ? card : c)) }
-          : task
-      )
-    );
-  }, []);
-
-  const deleteTask = useCallback((taskId: string) => {
-    setTasks((prev) => prev.filter((task) => task.id !== taskId));
-  }, []);
-
-  const deleteCard = useCallback((taskId: string, cardId: string) => {
-    setTasks((prev) =>
-      prev.map((task) =>
-        task.id === taskId
-          ? { ...task, cards: task.cards.filter((card) => card.id !== cardId) }
-          : task
-      )
-    );
-  }, []);
-
-  return {
-    tasks,
-    addTask,
-    moveCard,
-    addCard,
-    updateCard,
-    deleteTask,
-    deleteCard,
-    setTasks,
-  };
+type Task = {
+  id: string;
+  title: string;
+  cards: Card[];
 };
 
 export const Workspace = () => {
@@ -121,84 +29,96 @@ export const Workspace = () => {
     null
   );
 
-  const {
-    tasks,
-    addTask,
-    moveCard,
-    addCard,
-    updateCard,
-    deleteTask,
-    deleteCard,
-    setTasks,
-  } = useTasks(id || "");
+  const [tasks, setTasks] = useState<Task[]>(() => {
+    const stored = localStorage.getItem(`tasks-${id}`);
+    return stored ? JSON.parse(stored) : [];
+  });
 
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [isImagePopupOpen, setIsImagePopupOpen] = useState(false);
   const [isCardImagePopupOpen, setIsCardImagePopupOpen] = useState(false);
   const [currentCardId, setCurrentCardId] = useState<string | null>(null);
 
-  const containerRef = useRef<HTMLDivElement>(null);
-  const sortableInstances = useRef<Sortable[]>([]);
-
+  // Сохранение в localStorage
   useEffect(() => {
-    if (!containerRef.current) return;
-
-    // Уничтожаем старые инстансы
-    sortableInstances.current.forEach((instance) => {
-      try {
-        instance.destroy();
-      } catch (e) {
-        console.warn("Failed to destroy Sortable instance", e);
-      }
-    });
-    sortableInstances.current = [];
-
-    const blocks = containerRef.current.querySelectorAll(".making-block");
-    blocks.forEach((block) => {
-      const sortable = new Sortable(block as HTMLElement, {
-        group: "shared-group",
-        animation: 150,
-        delay: 0,
-        delayOnTouchOnly: true,
-        touchStartThreshold: 5,
-        onEnd: (evt) => {
-          const fromBlockId = evt.from.getAttribute("data-block-id");
-          const toBlockId = evt.to.getAttribute("data-block-id");
-          const cardId = evt.item.getAttribute("data-card-id");
-
-          if (fromBlockId && toBlockId && cardId && evt.newIndex !== undefined) {
-            moveCard(cardId, fromBlockId, toBlockId, evt.newIndex);
-          }
-        },
-      });
-      sortableInstances.current.push(sortable);
-    });
-
-    return () => {
-      // Очистка при размонтировании
-      sortableInstances.current.forEach((instance) => {
-        try {
-          instance.destroy();
-        } catch (e) {
-          console.warn("Failed to destroy Sortable on unmount", e);
-        }
-      });
-      sortableInstances.current = [];
-    };
-  }, [tasks, moveCard]);
-
-  const handleCardImageSelect = (url: string) => {
-    if (currentCardId) {
-      const updatedTasks = tasks.map((task) => ({
-        ...task,
-        cards: task.cards.map((card) =>
-          card.id === currentCardId ? { ...card, selectedImage: url } : card
-        ),
-      }));
-      setTasks(updatedTasks);
+    if (id) {
+      localStorage.setItem(`tasks-${id}`, JSON.stringify(tasks));
     }
-    setIsCardImagePopupOpen(false);
-  };
+  }, [tasks, id]);
+
+  // --- Управление задачами ---
+  const addTask = useCallback(
+    (title: string) => {
+      if (!title.trim()) return;
+      const newTask: Task = {
+        id: Date.now().toString(),
+        title: title.trim(),
+        cards: [],
+      };
+      setTasks((prev) => [...prev, newTask]);
+    },
+    []
+  );
+
+  const deleteTask = useCallback((taskId: string) => {
+    setTasks((prev) => prev.filter((task) => task.id !== taskId));
+  }, []);
+
+  const deleteCard = useCallback((taskId: string, cardId: string) => {
+    setTasks((prev) =>
+      prev.map((task) =>
+        task.id === taskId
+          ? { ...task, cards: task.cards.filter((c) => c.id !== cardId) }
+          : task
+      )
+    );
+  }, []);
+
+  const addCard = useCallback((taskId: string, card: Card) => {
+    setTasks((prev) =>
+      prev.map((task) =>
+        task.id === taskId ? { ...task, cards: [...task.cards, card] } : task
+      )
+    );
+  }, []);
+
+  const updateCard = useCallback((taskId: string, card: Card) => {
+    setTasks((prev) =>
+      prev.map((task) =>
+        task.id === taskId
+          ? {
+              ...task,
+              cards: task.cards.map((c) => (c.id === card.id ? card : c)),
+            }
+          : task
+      )
+    );
+  }, []);
+
+  const updateBlockTitle = useCallback((taskId: string, newTitle: string) => {
+    setTasks((prev) =>
+      prev.map((task) => (task.id === taskId ? { ...task, title: newTitle } : task))
+    );
+  }, []);
+
+  // --- DnD: Перемещение карточек между блоками ---
+  const moveCard = useCallback(
+    (dragIndex: number, hoverIndex: number, fromTaskId: string, toTaskId: string) => {
+      setTasks((prevTasks) => {
+        const newTasks = [...prevTasks];
+        const fromTask = newTasks.find((t) => t.id === fromTaskId);
+        const toTask = newTasks.find((t) => t.id === toTaskId);
+
+        if (!fromTask || !toTask) return prevTasks;
+
+        const [movedCard] = fromTask.cards.splice(dragIndex, 1);
+        toTask.cards.splice(hoverIndex, 0, movedCard);
+
+        return newTasks;
+      });
+    },
+    []
+  );
 
   const handleAddTask = () => {
     if (newTaskTitle.trim()) {
@@ -211,22 +131,30 @@ export const Workspace = () => {
     if (e.key === "Enter") handleAddTask();
   };
 
-  const handleUpdateBlockTitle = (taskId: string, newTitle: string) => {
-    setTasks((prev) =>
-      prev.map((task) => (task.id === taskId ? { ...task, title: newTitle } : task))
-    );
-  };
+  const handleCardImageSelect = useCallback(
+    (url: string) => {
+      if (currentCardId) {
+        setTasks((prev) =>
+          prev.map((task) => ({
+            ...task,
+            cards: task.cards.map((card) =>
+              card.id === currentCardId ? { ...card, selectedImage: url } : card
+            ),
+          }))
+        );
+      }
+      setIsCardImagePopupOpen(false);
+    },
+    [currentCardId]
+  );
 
   if (isLoading || !id) return null;
 
   return (
-    <>
+    <DndProvider backend={HTML5Backend}>
       <Menu />
       {isImagePopupOpen && (
-        <Popup
-          onClose={() => setIsImagePopupOpen(false)}
-          onSelectImage={setBackgroundImage}
-        />
+        <Popup onClose={() => setIsImagePopupOpen(false)} onSelectImage={setBackgroundImage} />
       )}
       {isCardImagePopupOpen && (
         <Popup
@@ -234,7 +162,6 @@ export const Workspace = () => {
           onSelectImage={handleCardImageSelect}
         />
       )}
-
       <Box
         sx={{
           width: "100%",
@@ -263,7 +190,6 @@ export const Workspace = () => {
           Добавить изображение
         </Typography>
       </Box>
-
       <BaseLayout>
         <Typography
           variant="h3"
@@ -278,7 +204,6 @@ export const Workspace = () => {
         >
           {data?.name}
         </Typography>
-
         <Box sx={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "20px" }}>
           <TextField
             value={newTaskTitle}
@@ -301,27 +226,27 @@ export const Workspace = () => {
             Добавить задачу
           </Button>
         </Box>
-
-        <Box ref={containerRef} sx={{ display: "flex", flexWrap: "wrap", gap: "20px" }}>
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: "20px" }}>
           {tasks.map((task) => (
             <MakingBlock
               key={task.id}
               blockId={task.id}
               title={task.title}
               cards={task.cards}
-              onDeleteCard={(cardId: string) => deleteCard(task.id, cardId)}
-              onSelectImage={(cardId: string) => {
+              onDeleteCard={(cardId) => deleteCard(task.id, cardId)}
+              onSelectImage={(cardId) => {
                 setCurrentCardId(cardId);
                 setIsCardImagePopupOpen(true);
               }}
-              onUpdateTitle={(newTitle: string) => handleUpdateBlockTitle(task.id, newTitle)}
-              onCardAdd={(card: Card) => addCard(task.id, card)}
-              onCardUpdate={(card: Card) => updateCard(task.id, card)}
+              onUpdateTitle={(newTitle) => updateBlockTitle(task.id, newTitle)}
+              onCardAdd={(card) => addCard(task.id, card)}
+              onCardUpdate={(card) => updateCard(task.id, card)}
               onDeleteBlock={() => deleteTask(task.id)}
+              moveCard={moveCard}
             />
           ))}
         </Box>
       </BaseLayout>
-    </>
+    </DndProvider>
   );
 };
