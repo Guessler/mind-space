@@ -39,14 +39,12 @@ export const Workspace = () => {
   const [isCardImagePopupOpen, setIsCardImagePopupOpen] = useState(false);
   const [currentCardId, setCurrentCardId] = useState<string | null>(null);
 
-  // Сохранение в localStorage
   useEffect(() => {
     if (id) {
       localStorage.setItem(`tasks-${id}`, JSON.stringify(tasks));
     }
   }, [tasks, id]);
 
-  // --- Управление задачами ---
   const addTask = useCallback(
     (title: string) => {
       if (!title.trim()) return;
@@ -101,18 +99,26 @@ export const Workspace = () => {
     );
   }, []);
 
-  // --- DnD: Перемещение карточек между блоками ---
   const moveCard = useCallback(
     (dragIndex: number, hoverIndex: number, fromTaskId: string, toTaskId: string) => {
       setTasks((prevTasks) => {
-        const newTasks = [...prevTasks];
+        const newTasks = prevTasks.map((task) => ({ ...task, cards: [...task.cards] }));
         const fromTask = newTasks.find((t) => t.id === fromTaskId);
         const toTask = newTasks.find((t) => t.id === toTaskId);
 
         if (!fromTask || !toTask) return prevTasks;
 
-        const [movedCard] = fromTask.cards.splice(dragIndex, 1);
-        toTask.cards.splice(hoverIndex, 0, movedCard);
+        let cardToMove;
+        if (dragIndex === -1) {
+          const fromCardIndex = fromTask.cards.length > 0 ? 0 : -1;
+          if (fromCardIndex === -1) return prevTasks;
+          [cardToMove] = fromTask.cards.splice(fromCardIndex, 1);
+        } else {
+          if (dragIndex >= fromTask.cards.length) return prevTasks;
+          [cardToMove] = fromTask.cards.splice(dragIndex, 1);
+        }
+
+        toTask.cards.splice(hoverIndex, 0, cardToMove);
 
         return newTasks;
       });
@@ -210,7 +216,7 @@ export const Workspace = () => {
             onChange={(e) => setNewTaskTitle(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Введите название задачи"
-            fullWidth
+            sx={{width: "90%"}}
           />
           <Button
             variant="contained"
@@ -223,10 +229,10 @@ export const Workspace = () => {
               padding: "10px 20px",
             }}
           >
-            Добавить задачу
+            add task
           </Button>
         </Box>
-        <Box sx={{ display: "flex", flexWrap: "wrap", gap: "20px" }}>
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: "142px" }}>
           {tasks.map((task) => (
             <MakingBlock
               key={task.id}

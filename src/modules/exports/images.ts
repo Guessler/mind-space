@@ -10,13 +10,10 @@ const importImages = (context: __WebpackModuleApi.RequireContext): ImageModules 
   }, {} as ImageModules);
 };
 
-// Импорт изображений из папки assets/img
 const imgContext = require.context("../../assets/img", false, /\.(png|jpe?g|gif)$/);
 const imgImages = importImages(imgContext);
 
-// Импорт изображений из папки assets/svg
 const svgContext = require.context("../../assets/svg", false, /\.svg$/);
 const svgImages = importImages(svgContext);
 
-// Объединяем изображения в один объект
 export const images: ImageModules = { ...imgImages, ...svgImages };

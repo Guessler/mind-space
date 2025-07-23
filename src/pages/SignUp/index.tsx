@@ -34,7 +34,7 @@ const SignUp: React.FC = () => {
     try {
       await authService.register(username, email, password);
       setError('');
-      navigate(Paths.SignIn); // Перенаправляем на страницу входа после успешной регистрации
+      navigate(Paths.SignIn);
     } catch (err) {
       if (!err || !(err as AxiosError) || !(err as AxiosError)?.response) {
         setError('Что-то пошло не так...');

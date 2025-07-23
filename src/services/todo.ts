@@ -1,9 +1,3 @@
-// findFn
-// findItemsFn
-// createFn
-// updateFn
-// deleteFn
-
 import { $base_http } from "../consts/axios"
 import { TaskType } from "../modules/Todo/types"
 

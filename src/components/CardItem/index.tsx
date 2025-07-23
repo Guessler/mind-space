@@ -1,12 +1,13 @@
 import React from "react";
 import { Box, IconButton, TextField } from "@mui/material";
-import { useDrag, useDrop, DragSourceMonitor } from "react-dnd";
+import { useDrag, useDrop, DragSourceMonitor, DropTargetMonitor } from "react-dnd";
 import cross from "../../assets/svg/cross.svg";
 import { images } from "../../modules/exports/images";
 
 export type Card = {
   id: string;
   selectedImage: string | null;
+  taskTitle?: string;
   taskDescription?: string;
 };
 
@@ -19,6 +20,7 @@ interface CardItemProps {
   moveCard: (dragIndex: number, hoverIndex: number, fromTaskId: string, toTaskId: string) => void;
   onSelectImage: (cardId: string) => void;
   onDelete: () => void;
+  onUpdateTitle: (title: string) => void;
   onUpdateDescription: (description: string) => void;
 }
 
@@ -29,14 +31,16 @@ export const CardItem: React.FC<CardItemProps> = ({
   moveCard,
   onSelectImage,
   onDelete,
+  onUpdateTitle,
   onUpdateDescription,
 }) => {
   const ref = React.useRef<HTMLDivElement>(null);
 
   const [, drop] = useDrop({
     accept: ITEM_TYPE,
-    hover: (item: { index: number; taskId: string }) => {
+    hover: (item: { index: number; taskId: string }, monitor: DropTargetMonitor) => {
       if (!ref.current) return;
+
       const dragIndex = item.index;
       const hoverIndex = index;
       const dragTaskId = item.taskId;
@@ -44,8 +48,18 @@ export const CardItem: React.FC<CardItemProps> = ({
 
       if (dragIndex === hoverIndex && dragTaskId === hoverTaskId) return;
 
-      moveCard(dragIndex, hoverIndex, dragTaskId, hoverTaskId);
+      const hoverBoundingRect = ref.current.getBoundingClientRect();
+      const clientOffset = monitor.getClientOffset();
 
+      if (!clientOffset) return;
+
+      const hoverMiddleY = (hoverBoundingRect.bottom - hoverBoundingRect.top) / 2;
+      const hoverClientY = clientOffset.y - hoverBoundingRect.top;
+
+      if (dragIndex < hoverIndex && hoverClientY < hoverMiddleY) return;
+      if (dragIndex > hoverIndex && hoverClientY > hoverMiddleY) return;
+
+      moveCard(dragIndex, hoverIndex, dragTaskId, hoverTaskId);
       item.index = hoverIndex;
       item.taskId = hoverTaskId;
     },
@@ -81,8 +95,11 @@ export const CardItem: React.FC<CardItemProps> = ({
         padding: 0,
         cursor: "grab",
         opacity: isDragging ? 0.5 : 1,
+        transform: isDragging ? "scale(1.02)" : "none",
+        zIndex: isDragging ? 10 : "auto",
         "&:active": { cursor: "grabbing" },
         pointerEvents: "auto",
+        marginBottom: "10px",
       }}
     >
       <Box
@@ -104,11 +121,11 @@ export const CardItem: React.FC<CardItemProps> = ({
           onClick={() => onSelectImage(card.id)}
           src={cross}
           alt="select image"
-          style={{ position: "absolute", top: 5, left: 5, cursor: "pointer", zIndex: 1 }}
+          style={{ cursor: "pointer", zIndex: 1 }}
         />
         <IconButton
           onClick={handleDelete}
-          sx={{ position: "absolute", top: 5, right: 5, padding: 0 }}
+          sx={{ position: "absolute", top: 10, right: 10, padding: 0 }}
         >
           <Box component="img" src={images["bin"]} alt="delete" sx={{ width: 24, height: 24 }} />
         </IconButton>
@@ -116,16 +133,15 @@ export const CardItem: React.FC<CardItemProps> = ({
       <Box sx={{ width: "100%", display: "flex", flexDirection: "column", gap: "5px", padding: 0 }}>
         <TextField
           multiline
-          placeholder="Write the name of the task"
-          value={card.taskDescription || ""}
-          onChange={(e) => onUpdateDescription(e.target.value)}
+          placeholder="Task title"
+          value={card.taskTitle || ""}
+          onChange={(e) => onUpdateTitle(e.target.value)}
           minRows={1}
-          maxRows={5}
+          maxRows={3}
           sx={{
             width: "100%",
             "& .MuiOutlinedInput-root": { border: "none", "& fieldset": { border: "none" } },
             "& .MuiInputBase-input": {
-              padding: "10px",
               fontWeight: 900,
               color: "#394D70",
             },
@@ -133,7 +149,7 @@ export const CardItem: React.FC<CardItemProps> = ({
         />
         <TextField
           multiline
-          placeholder="Write what you need to do"
+          placeholder="Task description"
           value={card.taskDescription || ""}
           onChange={(e) => onUpdateDescription(e.target.value)}
           minRows={1}
@@ -145,7 +161,6 @@ export const CardItem: React.FC<CardItemProps> = ({
             opacity: 0.5,
             "& .MuiOutlinedInput-root": { border: "none", "& fieldset": { border: "none" } },
             "& .MuiInputBase-input": {
-              padding: "10px",
               fontWeight: 600,
               color: "#394D70",
             },

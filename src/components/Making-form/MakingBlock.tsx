@@ -36,6 +36,7 @@ export const MakingBlock: React.FC<MakingBlockProps> = ({
     onCardAdd({
       id: Date.now().toString(),
       selectedImage: null,
+      taskTitle: "",
       taskDescription: "",
     });
   };
@@ -46,7 +47,6 @@ export const MakingBlock: React.FC<MakingBlockProps> = ({
     }, 50);
   };
 
-  // --- DnD: Принимаем карточки даже в пустой блок ---
   const [, drop] = useDrop({
     accept: "CARD",
     drop: () => ({ taskId: blockId }),
@@ -54,7 +54,6 @@ export const MakingBlock: React.FC<MakingBlockProps> = ({
       const dragTaskId = item.taskId;
       if (dragTaskId === blockId) return;
 
-      // Если карточек нет — вставляем на позицию 0
       moveCard(item.index, 0, dragTaskId, blockId);
       item.taskId = blockId;
       item.index = 0;
@@ -76,6 +75,10 @@ export const MakingBlock: React.FC<MakingBlockProps> = ({
         alignItems: "flex-start",
         gap: "10px",
         position: "relative",
+        border: "2px dashed transparent",
+        "&:hover": {
+          borderColor: "#394D70",
+        },
       }}
     >
       <IconButton
@@ -135,19 +138,47 @@ export const MakingBlock: React.FC<MakingBlockProps> = ({
           </Box>
         ) : (
           cards.map((card, index) => (
-            <CardItem
-              key={card.id}
-              card={card}
-              taskId={blockId}
-              index={index}
-              moveCard={moveCard}
-              onSelectImage={onSelectImage}
-              onDelete={() => handleDeleteCard(card.id)}
-              onUpdateDescription={(desc) => onCardUpdate({ ...card, taskDescription: desc })}
-            />
+            <React.Fragment key={card.id}>
+              <Box
+                sx={{
+                  height: "10px",
+                  background: "transparent",
+                  border: "2px dashed #394D70",
+                  borderRadius: "5px",
+                  opacity: 0,
+                  "&:hover": { opacity: 0.3 },
+                }}
+                onDragOver={(e) => e.preventDefault()}
+                onDrop={() => moveCard(-1, index, "", blockId)}
+              />
+              <CardItem
+                card={card}
+                taskId={blockId}
+                index={index}
+                moveCard={moveCard}
+                onSelectImage={onSelectImage}
+                onDelete={() => handleDeleteCard(card.id)}
+                onUpdateTitle={(title) => onCardUpdate({ ...card, taskTitle: title })}
+                onUpdateDescription={(desc) => onCardUpdate({ ...card, taskDescription: desc })}
+              />
+            </React.Fragment>
           ))
         )}
       </Box>
+
+      <Box
+        sx={{
+          height: "10px",
+          background: "transparent",
+          border: "2px dashed #394D70",
+          borderRadius: "5px",
+          opacity: 0,
+          width: "100%",
+          "&:hover": { opacity: 0.3 },
+        }}
+        onDragOver={(e) => e.preventDefault()}
+        onDrop={() => moveCard(-1, cards.length, "", blockId)}
+      />
 
       <Typography
         onClick={handleAddCard}
