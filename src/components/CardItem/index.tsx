@@ -1,27 +1,32 @@
+// src/components/CardItem.tsx
 import React from "react";
-import { Box, TextField } from "@mui/material";
+import { Box, IconButton, TextField } from "@mui/material";
 import cross from "../../assets/svg/cross.svg";
+import { images } from "../../modules/exports/images";
 
 interface Card {
-  id: number;
+  id: string;
   selectedImage: string | null;
+  taskDescription?: string;
 }
 
 interface CardItemProps {
   card: Card;
-  onSelectImage: (id: number) => void;
-  updateTaskDescription: (id: number, description: string) => void;
-  descriptionInputRef: React.RefObject<HTMLInputElement>;
+  onSelectImage: () => void;
+  onDelete: () => void;
+  onUpdateDescription: (description: string) => void;
 }
 
 export const CardItem: React.FC<CardItemProps> = ({
   card,
   onSelectImage,
-  updateTaskDescription,
-  descriptionInputRef,
+  onDelete,
+  onUpdateDescription,
 }) => {
   return (
     <Box
+      className="card-item"
+      data-card-id={card.id}
       sx={{
         width: "100%",
         background: "#F5F5F5",
@@ -32,12 +37,13 @@ export const CardItem: React.FC<CardItemProps> = ({
         gap: "10px",
         padding: 0,
         transition: "all 0.3s ease",
-        cursor: "grab", // Курсор "grab" при наведении
+        cursor: "grab",
         "&:active": {
-          cursor: "grabbing", // Курсор "grabbing" при перетаскивании
+          cursor: "grabbing",
         },
       }}
     >
+      {/* Фоновая область с изображением и иконками */}
       <Box
         sx={{
           width: "100%",
@@ -50,15 +56,26 @@ export const CardItem: React.FC<CardItemProps> = ({
           backgroundSize: "cover",
           backgroundPosition: "center",
           padding: 0,
+          position: "relative",
         }}
       >
+        {/* Иконка выбора изображения (крестик) */}
         <img
-          onClick={() => onSelectImage(card.id)}
-          style={{ cursor: "pointer" }}
+          onClick={onSelectImage}
+          style={{ cursor: "pointer", top: 5, left: 5 }}
           src={cross}
-          alt="close"
+          alt="select image"
         />
+        {/* Иконка удаления */}
+        <IconButton
+          onClick={onDelete}
+          sx={{ position: "absolute", top: 5, right: 5, padding: 0 }}
+        >
+          <Box component="img" src={images["bin"]} alt="delete" sx={{ width: 24, height: 24 }} />
+        </IconButton>
       </Box>
+
+      {/* Поля ввода: заголовок и описание */}
       <Box
         sx={{
           width: "100%",
@@ -69,27 +86,22 @@ export const CardItem: React.FC<CardItemProps> = ({
           padding: 0,
         }}
       >
+        {/* Поле для названия задачи */}
         <TextField
           multiline
           placeholder="Write the name of the task"
-          onChange={(e) => updateTaskDescription(card.id, e.target.value)}
+          value={card.taskDescription || ""}
+          onChange={(e) => onUpdateDescription(e.target.value)}
           minRows={1}
           maxRows={5}
-          inputRef={descriptionInputRef}
           sx={{
             width: "100%",
             "& .MuiOutlinedInput-root": {
               border: "none",
               padding: 0,
-              "& fieldset": {
-                border: "none",
-              },
-              "&:hover fieldset": {
-                border: "none",
-              },
-              "&.Mui-focused fieldset": {
-                border: "none",
-              },
+              "& fieldset": { border: "none" },
+              "&:hover fieldset": { border: "none" },
+              "&.Mui-focused fieldset": { border: "none" },
             },
             "& .MuiInputBase-input": {
               padding: "10px",
@@ -99,7 +111,15 @@ export const CardItem: React.FC<CardItemProps> = ({
             },
           }}
         />
+
+        {/* Поле для описания задачи */}
         <TextField
+          multiline
+          placeholder="Write what you need to do"
+          value={card.taskDescription || ""}
+          onChange={(e) => onUpdateDescription(e.target.value)}
+          minRows={1}
+          maxRows={5}
           sx={{
             width: "100%",
             fontWeight: "600",
@@ -108,21 +128,14 @@ export const CardItem: React.FC<CardItemProps> = ({
             "& .MuiOutlinedInput-root": {
               padding: 0,
               border: "none",
-              "& fieldset": {
-                border: "none",
-              },
-              "&:hover fieldset": {
-                border: "none",
-              },
-              "&.Mui-focused fieldset": {
-                border: "none",
-              },
+              "& fieldset": { border: "none" },
+              "&:hover fieldset": { border: "none" },
+              "&.Mui-focused fieldset": { border: "none" },
             },
             "& .MuiInputBase-input": {
               padding: "10px",
               fontWeight: "600",
               color: "#394D70",
-              border: "none",
               minHeight: "30px",
             },
             "& .MuiInputBase-inputMultiline": {
@@ -131,12 +144,6 @@ export const CardItem: React.FC<CardItemProps> = ({
             },
             height: "auto",
           }}
-          placeholder="Write what you need to do"
-          multiline
-          minRows={1}
-          maxRows={5}
-          onChange={(e) => updateTaskDescription(card.id, e.target.value)}
-          inputRef={descriptionInputRef}
         />
       </Box>
     </Box>

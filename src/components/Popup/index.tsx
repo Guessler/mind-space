@@ -15,10 +15,10 @@ interface PopupProps {
 
 export const Popup: React.FC<PopupProps> = ({ onClose, onSelectImage }) => {
   const [imagesList] = useState<Image[]>([
-    { id: 1, url: images["wallpaperflare.com_wallpaper1"], alt: "Abstract geometric pattern" },
+    { id: 1, url: images["orenge"], alt: "Abstract geometric pattern" },
     { id: 2, url: images["1623781112_img0"], alt: "A beautiful sunset over a mountain range" },
-    { id: 3, url: images["wallpaperflare.com_wallpaper"], alt: "A calm beach with clear blue water" },
-    { id: 5, url: images["windows-11-dark-mode-abstract-background-black-background-3840x2160-8710"], alt: "A dark and intense scene with blood splashes" },
+    { id: 3, url: images["blue"], alt: "A calm beach with clear blue water" },
+    { id: 5, url: images["black"], alt: "A dark and intense scene with blood splashes" },
   ]);
 
   const handleImageClick = (url: string) => {
@@ -75,8 +75,8 @@ export const Popup: React.FC<PopupProps> = ({ onClose, onSelectImage }) => {
             onClick={() => handleImageClick(image.url)}
           >
             <img
-              src={image.url} // Используем src для загрузки изображения
-              alt={image.alt} // Используем alt для описания
+              src={image.url}
+              alt={image.alt}
               style={{
                 width: "100%",
                 height: "100%",

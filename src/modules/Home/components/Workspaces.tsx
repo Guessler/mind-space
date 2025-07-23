@@ -1,54 +1,42 @@
 import { Box, Button, Card, TextField, Typography } from "@mui/material";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import useSWR from "swr";
 import { workspaceService } from "../../../services/workspace.service";
 import { useNavigate } from "react-router-dom";
 import { images } from "../../../modules/exports/images";
 import { Popup } from "../../../components/Popup"; // Импортируем Popup
-
-const useLocalStorage = (key: string, initialValue: string | null) => {
-    const [value, setValue] = useState(() => {
-        const storedValue = localStorage.getItem(key);
-        return storedValue ? storedValue : initialValue;
-    });
-
-    useEffect(() => {
-        if (value !== null) {
-            localStorage.setItem(key, value);
-        }
-    }, [key, value]);
-
-    return [value, setValue] as const;
-};
+import { useLocalStorage } from "../../../hooks/useLocalStorage";
 
 export const Workspaces = () => {
     const navigate = useNavigate();
-    const [isMainModalVisible, setIsMainModalVisible] = useState(false); // For the main modal
-    const [isImagePopupVisible, setIsImagePopupVisible] = useState(false); // For the image selection Popup
+    const [isMainModalVisible, setIsMainModalVisible] = useState(false); // Для главного модального окна
+    const [isImagePopupVisible, setIsImagePopupVisible] = useState(false); // Для всплывающего окна выбора изображения
     const { data, isLoading, mutate } = useSWR('my-workspaces', () => workspaceService.myWorkspaces({ page: 1, limit: 100 }));
     const [name, setName] = useState("");
-    const [backgroundImage, setBackgroundImage] = useLocalStorage('workspaceBackgroundImage', null); // Получаем изображение из localStorage
+    const [backgroundImage, setBackgroundImage] = useLocalStorage<string | null>(
+        'workspaceBackgroundImage',
+        null
+    );
     const [selectedImage, setSelectedImage] = useState<string | null>(null); // Состояние для выбранного изображения
-    
 
     const handleOpenMainModal = () => {
-        setIsMainModalVisible(true); // Open the main modal
+        setIsMainModalVisible(true); // Открыть главное модальное окно
     };
 
     const handleCloseMainModal = () => {
-        setIsMainModalVisible(false); // Close the main modal
+        setIsMainModalVisible(false); // Закрыть главное модальное окно
     };
 
     const handleOpenImagePopup = () => {
-        setIsImagePopupVisible(true); // Open the image selection Popup
+        setIsImagePopupVisible(true); // Открыть всплывающее окно выбора изображения
     };
 
     const handleCloseImagePopup = () => {
-        setIsImagePopupVisible(false); // Close the image selection Popup
+        setIsImagePopupVisible(false); // Закрыть всплывающее окно выбора изображения
     };
 
     const handlePopupClick = (e: React.MouseEvent<HTMLDivElement>) => {
-        e.stopPropagation(); // Prevent event bubbling
+        e.stopPropagation(); // Предотвратить всплытие события
     };
 
     const handleCreate = async () => {
@@ -58,19 +46,18 @@ export const Workspaces = () => {
             }
             await workspaceService.create(name);
             setName("");
-            handleCloseMainModal(); // Close the main modal after creation
-            mutate(); // Refresh the workspace data
+            handleCloseMainModal(); // Закрыть главное модальное окно после создания
+            mutate(); // Обновить данные о рабочих пространствах
         } catch (err) {
             console.error("Ошибка при создании workspace:", err);
         }
     };
 
-    // Function to handle image selection
+    // Функция для обработки выбора изображения
     const handleSelectImage = (url: string) => {
-        setBackgroundImage(url); // Set the selected image as the background
-        handleCloseImagePopup(); 
-        setSelectedImage(url); // Set the selected image
-        handleCloseImagePopup(); // Close the image popup after selection
+        setBackgroundImage(url); // Установить выбранное изображение как фон
+        handleCloseImagePopup();
+        setSelectedImage(url); // Установить выбранное изображение
     };
 
     if (isLoading) {
@@ -115,18 +102,18 @@ export const Workspaces = () => {
                 <Box sx={{ width: '100%', height: '10rem', background: '#526382', opacity: "0.7", display: "flex", alignItems: "center", justifyContent: "center" }}>
                     <img src={images["cross"]} alt="cross" />
                 </Box>
-                <Typography sx={{ fontFamily: 'Inter, sans-serif', fontSize: "16px", width: "120px", color: "#394D70" }} variant="h4">Create a new workspace</Typography>
+                <Typography sx={{ fontFamily: 'Inter, sans-serif', fontSize: "16px", width: "120px", color: "#394D70" }} variant="h4">Создать новое рабочее пространство</Typography>
             </Card>
 
             {isMainModalVisible && (
                 <Box onClick={handleCloseMainModal} sx={{ width: '100%', height: '100vh', position: 'fixed', top: '0', left: '0', background: 'rgba(0, 0, 0, 0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }} className="popup-bg">
-                    <Box onClick={handlePopupClick} sx={{ width: '800px', height: "500px", background: "white", borderRadius: "30px", display: "flex", flexDirection: "column", alignItems: "center", gap: "55px" }} className="popup">
+                    <Box onClick={handlePopupClick} sx={{ width: '1000px', height: "700px", background: "white", borderRadius: "30px", display: "flex", flexDirection: "column", alignItems: "center", gap: "55px" }} className="popup">
                         <Box sx={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
                             <Box sx={{
-                                width: "800px", height: "210px", borderRadius: "10px 10px 0 0", objectFit: "cover",
+                                width: "1000px", height: "400px", borderRadius: "10px 10px 0 0", objectFit: "cover",
                                 objectPosition: "center",
-                            }} component="img" alt="photo" src={selectedImage || images["Photo"]} />
-                            <Box sx={{ position: "absolute" }} component="img" alt="plus" src={images["plus"]} onClick={handleOpenImagePopup} /> {/* Open Image Popup */}
+                            }} component="img" alt="photo" src={selectedImage || images["black"]} />
+                            <Box sx={{ position: "absolute" }} component="img" alt="plus" src={images["plus"]} onClick={handleOpenImagePopup} /> {/* Открыть всплывающее окно выбора изображения */}
                         </Box>
                         <Box sx={{ width: "400px", display: "flex", flexDirection: "column", gap: "10px" }}>
                             <Typography
