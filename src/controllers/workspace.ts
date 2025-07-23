@@ -30,7 +30,6 @@ export class WorkSpaceController{
         }
     }
 
-    // Сделать контроллеры invite, remove, changeRole
         
     async remove(req: AuthRequest,res: Response){
         try{
