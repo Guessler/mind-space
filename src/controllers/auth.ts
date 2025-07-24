@@ -23,7 +23,6 @@ class AuthController{
             const {name, email, password} = req.body
             await this.authManager.regiter(name, email, password)
 
-            // return res.json({token: result })
             return res.json({message: "USER_REGISTERED" })
         }catch(err){
             if((err as Error).message === 'AUTH_FAILED'){
