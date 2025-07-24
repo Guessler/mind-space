@@ -54,12 +54,9 @@ export const Workspaces = () => {
         setSelectedImage(url);
     };
 
-    // Получаем фон по ID воркспейса (приводим id к строке)
-    // Замените эту функцию:
     const getBackgroundImageForWorkspace = (workspaceId: number | string): string | null => {
         const key = `workspaceBackgroundImage-${workspaceId}`;
         const saved = localStorage.getItem(key);
-        // ❌ Убираем JSON.parse — если сохраняли строку, то она уже строка
         return saved ? saved : null;
     };
 

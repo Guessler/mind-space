@@ -1,21 +1,25 @@
-import { useState, useEffect } from 'react';
+// hooks/useLocalStorage.ts
+import { useState, useEffect } from "react";
 
 export const useLocalStorage = <T,>(key: string, initialValue: T): [T, (value: T) => void] => {
-  const [value, setValue] = useState<T>(() => {
-    const storedValue = localStorage.getItem(key);
-    let parsedValue;
+  const [storedValue, setStoredValue] = useState<T>(() => {
     try {
-      parsedValue = storedValue ? JSON.parse(storedValue) : initialValue;
-    } catch (e) {
-      console.error(`Error parsing JSON for key "${key}":`, e);
-      parsedValue = initialValue;
+      const item = window.localStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
+    } catch (error) {
+      console.error(error);
+      return initialValue;
     }
-    return parsedValue;
   });
 
-  useEffect(() => {
-    localStorage.setItem(key, JSON.stringify(value));
-  }, [key, value]);
+  const setValue = (value: T) => {
+    try {
+      setStoredValue(value);
+      window.localStorage.setItem(key, JSON.stringify(value));
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
-  return [value, setValue];
+  return [storedValue, setValue];
 };

@@ -5,13 +5,23 @@ import { useParams, useNavigate } from "react-router-dom";
 import { BaseLayout } from "../../layout/base";
 import useSWR, { useSWRConfig } from "swr";
 import { workspaceService } from "../../services/workspace.service";
-import { Box, Typography, TextField, Button, IconButton, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
+import {
+  Box,
+  Typography,
+  TextField,
+  Button,
+  IconButton,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+} from "@mui/material";
 import { Popup } from "../../components/Popup";
 import { Menu } from "../../components/Menu";
-import { useLocalStorage } from "../../hooks/useLocalStorage";
 import { Card } from "../../components/CardItem";
 import { MakingBlock } from "../../components/Making-form";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { images } from "../../modules/exports/images"; // Импортируем изображения
 
 type Task = {
   id: string;
@@ -23,13 +33,39 @@ export const Workspace = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { mutate } = useSWRConfig();
-  const { data, isLoading, mutate: mutateWorkspace } = useSWR(id ? `workspace-${id}` : null, () =>
-    id ? workspaceService.getById(id) : null
+  const { data, isLoading, mutate: mutateWorkspace } = useSWR(
+    id ? `workspace-${id}` : null,
+    () => (id ? workspaceService.getById(id) : null)
   );
 
-  const storageKey = id ? `workspaceBackgroundImage-${id}` : "workspaceBackgroundImage-null";
-  const [backgroundImage, setBackgroundImage] = useLocalStorage<string | null>(storageKey, null);
+  // --- Управление фоном ---
+  const [backgroundImage, setBackgroundImage] = useState<string | null>(null);
 
+  // При появлении id — читаем фон или устанавливаем временный
+  useEffect(() => {
+    if (id) {
+      const key = `workspaceBackgroundImage-${id}`;
+      const saved = localStorage.getItem(key);
+      if (saved) {
+        setBackgroundImage(JSON.parse(saved));
+      } else {
+        // 🖤 Устанавливаем временный фон: images["black"]
+        const tempBackground = images["black"];
+        setBackgroundImage(tempBackground);
+        localStorage.setItem(key, JSON.stringify(tempBackground));
+      }
+    }
+  }, [id]);
+
+  // Функция для обновления фона
+  const handleSetBackgroundImage = useCallback((url: string | null) => {
+    setBackgroundImage(url);
+    if (id) {
+      localStorage.setItem(`workspaceBackgroundImage-${id}`, JSON.stringify(url));
+    }
+  }, [id]);
+
+  // --- Управление задачами ---
   const [tasks, setTasks] = useState<Task[]>(() => {
     if (!id) return [];
     const stored = localStorage.getItem(`tasks-${id}`);
@@ -40,24 +76,25 @@ export const Workspace = () => {
   const [isImagePopupOpen, setIsImagePopupOpen] = useState(false);
   const [isCardImagePopupOpen, setIsCardImagePopupOpen] = useState(false);
   const [currentCardId, setCurrentCardId] = useState<string | null>(null);
-
   const [isEditing, setIsEditing] = useState(false);
   const [workspaceName, setWorkspaceName] = useState(data?.name || "");
-
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
+  // Обновляем имя workspace при получении данных
   useEffect(() => {
     if (data?.name) {
       setWorkspaceName(data.name);
     }
   }, [data?.name]);
 
+  // Сохраняем задачи в localStorage
   useEffect(() => {
     if (id) {
       localStorage.setItem(`tasks-${id}`, JSON.stringify(tasks));
     }
   }, [tasks, id]);
 
+  // --- Функции ---
   const handleRename = async () => {
     if (!id || !workspaceName.trim() || workspaceName === data?.name) {
       setIsEditing(false);
@@ -124,9 +161,9 @@ export const Workspace = () => {
       prev.map((task) =>
         task.id === taskId
           ? {
-            ...task,
-            cards: task.cards.map((c) => (c.id === card.id ? card : c)),
-          }
+              ...task,
+              cards: task.cards.map((c) => (c.id === card.id ? card : c)),
+            }
           : task
       )
     );
@@ -155,7 +192,6 @@ export const Workspace = () => {
           if (dragIndex >= fromTask.cards.length) return prevTasks;
           [cardToMove] = fromTask.cards.splice(dragIndex, 1);
         }
-
         toTask.cards.splice(hoverIndex, 0, cardToMove);
         return newTasks;
       });
@@ -191,21 +227,32 @@ export const Workspace = () => {
     [currentCardId, id]
   );
 
+  // --- Рендер ---
   if (isLoading || !id) return null;
 
   return (
     <DndProvider backend={HTML5Backend}>
       <Menu />
+
+      {/* Попап выбора фона */}
       {isImagePopupOpen && (
-        <Popup onClose={() => setIsImagePopupOpen(false)} onSelectImage={setBackgroundImage} />
+        <Popup
+          onClose={() => setIsImagePopupOpen(false)}
+          onSelectImage={handleSetBackgroundImage}
+        />
       )}
+
+      {/* Попап выбора изображения карточки */}
       {isCardImagePopupOpen && (
         <Popup
           onClose={() => setIsCardImagePopupOpen(false)}
           onSelectImage={handleCardImageSelect}
         />
       )}
+
+      {/* Блок с фоном */}
       <Box
+        key={backgroundImage} // Перерисовка при смене фона
         sx={{
           width: "100%",
           minHeight: "50px",
@@ -216,24 +263,26 @@ export const Workspace = () => {
           justifyContent: "center",
           backgroundImage: backgroundImage ? `url(${backgroundImage})` : "none",
           backgroundSize: "cover",
-          borderRadius: "0 0 20px 20px",
           backgroundPosition: "center",
+          borderRadius: "0 0 20px 20px",
+          cursor: "pointer",
         }}
+        onClick={() => setIsImagePopupOpen(true)}
       >
         <Typography
-          onClick={() => setIsImagePopupOpen(true)}
           sx={{
             fontFamily: "Unbounded",
             color: backgroundImage ? "#FFFFFF" : "#394D70",
             fontWeight: 900,
             opacity: 0.1,
-            cursor: "pointer",
           }}
         >
           Добавить изображение
         </Typography>
       </Box>
+
       <BaseLayout>
+        {/* Заголовок workspace */}
         <Box sx={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "20px" }}>
           {isEditing ? (
             <TextField
@@ -277,6 +326,8 @@ export const Workspace = () => {
             <DeleteIcon />
           </IconButton>
         </Box>
+
+        {/* Поле добавления задачи */}
         <Box sx={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "20px" }}>
           <TextField
             value={newTaskTitle}
@@ -300,6 +351,8 @@ export const Workspace = () => {
             add task
           </Button>
         </Box>
+
+        {/* Блоки задач */}
         <Box sx={{ display: "flex", flexWrap: "wrap", gap: "142px" }}>
           {tasks.map((task) => (
             <MakingBlock
@@ -321,11 +374,14 @@ export const Workspace = () => {
           ))}
         </Box>
       </BaseLayout>
+
+      {/* Диалог удаления */}
       <Dialog open={showDeleteDialog} onClose={() => setShowDeleteDialog(false)}>
         <DialogTitle>Подтвердите удаление</DialogTitle>
         <DialogContent>
           <Typography>
-            Вы уверены, что хотите удалить workspace <strong>"{workspaceName}"</strong>?
+            Вы уверены, что хотите удалить workspace{" "}
+            <strong>"{workspaceName}"</strong>?
             <br />
             Все данные будут потеряны.
           </Typography>

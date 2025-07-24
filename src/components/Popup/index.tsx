@@ -1,6 +1,6 @@
 import { Box, Typography } from "@mui/material";
 import { useState } from "react";
-import { images } from "../../modules/exports/images"; // Импорт изображений
+import { images } from "../../modules/exports/images";
 
 interface Image {
   id: number;
