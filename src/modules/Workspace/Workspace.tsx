@@ -1,16 +1,17 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { BaseLayout } from "../../layout/base";
-import useSWR from "swr";
+import useSWR, { useSWRConfig } from "swr";
 import { workspaceService } from "../../services/workspace.service";
-import { Box, Typography, TextField, Button } from "@mui/material";
+import { Box, Typography, TextField, Button, IconButton, Dialog, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 import { Popup } from "../../components/Popup";
 import { Menu } from "../../components/Menu";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
 import { Card } from "../../components/CardItem";
 import { MakingBlock } from "../../components/Making-form";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 type Task = {
   id: string;
@@ -20,16 +21,17 @@ type Task = {
 
 export const Workspace = () => {
   const { id } = useParams<{ id: string }>();
-  const { data, isLoading } = useSWR(`workspace-${id}`, () =>
-    workspaceService.getById(id as string)
+  const navigate = useNavigate();
+  const { mutate } = useSWRConfig();
+  const { data, isLoading, mutate: mutateWorkspace } = useSWR(id ? `workspace-${id}` : null, () =>
+    id ? workspaceService.getById(id) : null
   );
 
-  const [backgroundImage, setBackgroundImage] = useLocalStorage<string | null>(
-    `workspaceBackgroundImage-${id}`,
-    null
-  );
+  const storageKey = id ? `workspaceBackgroundImage-${id}` : "workspaceBackgroundImage-null";
+  const [backgroundImage, setBackgroundImage] = useLocalStorage<string | null>(storageKey, null);
 
   const [tasks, setTasks] = useState<Task[]>(() => {
+    if (!id) return [];
     const stored = localStorage.getItem(`tasks-${id}`);
     return stored ? JSON.parse(stored) : [];
   });
@@ -39,24 +41,61 @@ export const Workspace = () => {
   const [isCardImagePopupOpen, setIsCardImagePopupOpen] = useState(false);
   const [currentCardId, setCurrentCardId] = useState<string | null>(null);
 
+  const [isEditing, setIsEditing] = useState(false);
+  const [workspaceName, setWorkspaceName] = useState(data?.name || "");
+
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
+  useEffect(() => {
+    if (data?.name) {
+      setWorkspaceName(data.name);
+    }
+  }, [data?.name]);
+
   useEffect(() => {
     if (id) {
       localStorage.setItem(`tasks-${id}`, JSON.stringify(tasks));
     }
   }, [tasks, id]);
 
-  const addTask = useCallback(
-    (title: string) => {
-      if (!title.trim()) return;
-      const newTask: Task = {
-        id: Date.now().toString(),
-        title: title.trim(),
-        cards: [],
-      };
-      setTasks((prev) => [...prev, newTask]);
-    },
-    []
-  );
+  const handleRename = async () => {
+    if (!id || !workspaceName.trim() || workspaceName === data?.name) {
+      setIsEditing(false);
+      return;
+    }
+    try {
+      await workspaceService.update(id, { name: workspaceName.trim() });
+      mutateWorkspace();
+      mutate("my-workspaces");
+      setIsEditing(false);
+    } catch (err) {
+      console.error("Ошибка при переименовании workspace:", err);
+      setWorkspaceName(data?.name || "");
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!id) return;
+    try {
+      await workspaceService.delete(id);
+      mutate("my-workspaces");
+      localStorage.removeItem(`tasks-${id}`);
+      localStorage.removeItem(`workspaceBackgroundImage-${id}`);
+      navigate("/");
+    } catch (err) {
+      console.error("Ошибка при удалении workspace:", err);
+    }
+  };
+
+  const addTask = useCallback((title: string) => {
+    if (!title.trim()) return;
+    const newTask: Task = {
+      id: Date.now().toString(),
+      title: title.trim(),
+      cards: [],
+    };
+    setTasks((prev) => [...prev, newTask]);
+  }, []);
 
   const deleteTask = useCallback((taskId: string) => {
     setTasks((prev) => prev.filter((task) => task.id !== taskId));
@@ -85,9 +124,9 @@ export const Workspace = () => {
       prev.map((task) =>
         task.id === taskId
           ? {
-              ...task,
-              cards: task.cards.map((c) => (c.id === card.id ? card : c)),
-            }
+            ...task,
+            cards: task.cards.map((c) => (c.id === card.id ? card : c)),
+          }
           : task
       )
     );
@@ -105,7 +144,6 @@ export const Workspace = () => {
         const newTasks = prevTasks.map((task) => ({ ...task, cards: [...task.cards] }));
         const fromTask = newTasks.find((t) => t.id === fromTaskId);
         const toTask = newTasks.find((t) => t.id === toTaskId);
-
         if (!fromTask || !toTask) return prevTasks;
 
         let cardToMove;
@@ -119,7 +157,6 @@ export const Workspace = () => {
         }
 
         toTask.cards.splice(hoverIndex, 0, cardToMove);
-
         return newTasks;
       });
     },
@@ -139,7 +176,7 @@ export const Workspace = () => {
 
   const handleCardImageSelect = useCallback(
     (url: string) => {
-      if (currentCardId) {
+      if (currentCardId && id) {
         setTasks((prev) =>
           prev.map((task) => ({
             ...task,
@@ -151,7 +188,7 @@ export const Workspace = () => {
       }
       setIsCardImagePopupOpen(false);
     },
-    [currentCardId]
+    [currentCardId, id]
   );
 
   if (isLoading || !id) return null;
@@ -197,26 +234,57 @@ export const Workspace = () => {
         </Typography>
       </Box>
       <BaseLayout>
-        <Typography
-          variant="h3"
-          sx={{
-            fontSize: 40,
-            fontWeight: 900,
-            fontFamily: "Unbounded, sans-serif",
-            color: "#394D70",
-            marginBottom: "50px",
-            marginTop: "20px",
-          }}
-        >
-          {data?.name}
-        </Typography>
+        <Box sx={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "20px" }}>
+          {isEditing ? (
+            <TextField
+              value={workspaceName}
+              onChange={(e) => setWorkspaceName(e.target.value)}
+              onBlur={handleRename}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleRename();
+                if (e.key === "Escape") {
+                  setWorkspaceName(data?.name || "");
+                  setIsEditing(false);
+                }
+              }}
+              autoFocus
+              size="small"
+              sx={{ width: "300px" }}
+            />
+          ) : (
+            <Typography
+              variant="h3"
+              sx={{
+                fontSize: 40,
+                fontWeight: 900,
+                fontFamily: "Unbounded, sans-serif",
+                color: "#394D70",
+                cursor: "pointer",
+                "&:hover": { opacity: 0.8 },
+              }}
+              onClick={() => setIsEditing(true)}
+            >
+              {workspaceName}
+            </Typography>
+          )}
+          <IconButton
+            sx={{
+              color: "#394D70",
+              marginLeft: "auto",
+            }}
+            onClick={() => setShowDeleteDialog(true)}
+          >
+            <DeleteIcon />
+          </IconButton>
+        </Box>
         <Box sx={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "20px" }}>
           <TextField
             value={newTaskTitle}
             onChange={(e) => setNewTaskTitle(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Введите название задачи"
-            sx={{width: "90%"}}
+            sx={{ width: "90%" }}
+            size="small"
           />
           <Button
             variant="contained"
@@ -253,6 +321,24 @@ export const Workspace = () => {
           ))}
         </Box>
       </BaseLayout>
+      <Dialog open={showDeleteDialog} onClose={() => setShowDeleteDialog(false)}>
+        <DialogTitle>Подтвердите удаление</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Вы уверены, что хотите удалить workspace <strong>"{workspaceName}"</strong>?
+            <br />
+            Все данные будут потеряны.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowDeleteDialog(false)} color="primary">
+            Отмена
+          </Button>
+          <Button onClick={handleDelete} color="error" variant="contained">
+            Удалить
+          </Button>
+        </DialogActions>
+      </Dialog>
     </DndProvider>
   );
 };

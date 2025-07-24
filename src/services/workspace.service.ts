@@ -1,38 +1,58 @@
-import { $auth_http } from "../consts/axios"
-import { List } from "../types"
-import { WorkspaceDto } from "../types/workspace"
+import { $auth_http } from "../consts/axios";
+import { List } from "../types";
+import { WorkspaceDto } from "../types/workspace";
 
-const BASE_URl = `/api/workspace`
+const BASE_URL = `/api/workspace`;
 
-const myWorkspaces = async ({page = 1, limit = 20}): Promise<List<WorkspaceDto>> => {
-    const {data} = await $auth_http.get(`${BASE_URl}/my-workspaces?page=${page}&limit=${limit}`, {
+const myWorkspaces = async ({ page = 1, limit = 20 }: { page?: number; limit?: number } = {}): Promise<List<WorkspaceDto>> => {
+    const { data } = await $auth_http.get(`${BASE_URL}/my-workspaces`, {
+        params: { page, limit },
         headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
-        }
-    })
-    return data
-} 
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+    });
+    return data;
+};
 
 const create = async (name: string): Promise<WorkspaceDto> => {
-    const {data} = await $auth_http.post(`${BASE_URl}/create`, {name}, {
+    const { data } = await $auth_http.post(`${BASE_URL}/create`, { name }, {
         headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
-    })
-    return data
-}
+    });
+    return data;
+};
 
 const getById = async (id: string): Promise<WorkspaceDto> => {
-    const {data} = await $auth_http.get(`${BASE_URl}/${id}`, {
+    const { data } = await $auth_http.get(`${BASE_URL}/${id}`, {
         headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
-    })
-    return data
-}
+    });
+    return data;
+};
+
+const update = async (id: string, payload: { name: string }): Promise<WorkspaceDto> => {
+    const { data } = await $auth_http.put(`${BASE_URL}/${id}`, payload, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+    });
+    return data;
+};
+
+const deleteWorkspace = async (id: string): Promise<void> => {
+    await $auth_http.delete(`${BASE_URL}/${id}`, {
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+    });
+};
 
 export const workspaceService = {
     myWorkspaces,
     create,
-    getById
-}
+    getById,
+    update,
+    delete: deleteWorkspace,
+};

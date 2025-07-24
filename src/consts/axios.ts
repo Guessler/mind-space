@@ -1,13 +1,13 @@
 import axios from "axios";
 
 export const $base_http = axios.create({
-    // baseURL: "http://localhost:8080"
-    baseURL: import.meta.env.VITE_API_BASE_URL,
+    baseURL: "http://localhost:8080"
+    // baseURL: import.meta.env.VITE_API_BASE_URL,
 })
 
 export const $auth_http = axios.create({
-    // baseURL: "http://localhost:8080",
-    baseURL: import.meta.env.VITE_API_BASE_URL,
+    baseURL: "http://localhost:8080",
+    // baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:8080",
     headers: {
         Authorization: `Bearer ${localStorage.getItem('token')}`
     }

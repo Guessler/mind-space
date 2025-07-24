@@ -1,8 +1,8 @@
 // src/types/env.d.ts
+
 interface ImportMetaEnv {
     readonly VITE_API_BASE_URL: string;
-    // Добавьте другие переменные, если нужно
-    // readonly VITE_SOME_KEY: string;
+    // add other env variables here if needed
 }
 
 interface ImportMeta {

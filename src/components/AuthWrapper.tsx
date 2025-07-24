@@ -39,7 +39,6 @@ export const AuthWrapper: FC<PropsWithChildren> = observer(({children}) => {
         fetcher().finally(() => setIsLoading(false))
     }, [ctx.authStore])
 
-    // console.log(ctx.authStore.isAuth)
 
     if(isLoading){
         return null

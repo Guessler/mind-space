@@ -11,12 +11,10 @@ export const Workspaces = () => {
     const navigate = useNavigate();
     const [isMainModalVisible, setIsMainModalVisible] = useState(false);
     const [isImagePopupVisible, setIsImagePopupVisible] = useState(false);
-    const { data, isLoading, mutate } = useSWR('my-workspaces', () => workspaceService.myWorkspaces({ page: 1, limit: 100 }));
-    const [name, setName] = useState("");
-    const [backgroundImage, setBackgroundImage] = useLocalStorage<string | null>(
-        'workspaceBackgroundImage',
-        null
+    const { data, isLoading, mutate } = useSWR("my-workspaces", () =>
+        workspaceService.myWorkspaces({ page: 1, limit: 100 })
     );
+    const [name, setName] = useState("");
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
     const handleOpenMainModal = () => {
@@ -28,7 +26,7 @@ export const Workspaces = () => {
     };
 
     const handleOpenImagePopup = () => {
-        setIsImagePopupVisible(true); 
+        setIsImagePopupVisible(true);
     };
 
     const handleCloseImagePopup = () => {
@@ -41,11 +39,10 @@ export const Workspaces = () => {
 
     const handleCreate = async () => {
         try {
-            if (name.trim() === "") {
-                return;
-            }
+            if (name.trim() === "") return;
             await workspaceService.create(name);
             setName("");
+            setSelectedImage(null);
             handleCloseMainModal();
             mutate();
         } catch (err) {
@@ -54,9 +51,16 @@ export const Workspaces = () => {
     };
 
     const handleSelectImage = (url: string) => {
-        setBackgroundImage(url);
-        handleCloseImagePopup();
         setSelectedImage(url);
+    };
+
+    // Получаем фон по ID воркспейса (приводим id к строке)
+    // Замените эту функцию:
+    const getBackgroundImageForWorkspace = (workspaceId: number | string): string | null => {
+        const key = `workspaceBackgroundImage-${workspaceId}`;
+        const saved = localStorage.getItem(key);
+        // ❌ Убираем JSON.parse — если сохраняли строку, то она уже строка
+        return saved ? saved : null;
     };
 
     if (isLoading) {
@@ -64,64 +68,157 @@ export const Workspaces = () => {
     }
 
     return (
-        <Box sx={{ width: '100%', display: 'flex', flexDirection: 'row', gap: "60px", flexWrap: 'wrap', marginTop: "76px" }}>
-            {data?.rows.map((item) => (
-                <Card
-                    onClick={() => navigate(`/${item.id}`)}
-                    sx={{ width: '240px', minHeight: "250px", display: 'flex', flexDirection: 'column', alignItems: "center", gap: "10px" }}
-                    key={item.id}
-                >
-                    <Box sx={{
-                        width: '100%',
-                        height: '10rem',
-                        backgroundImage: backgroundImage ? `url(${backgroundImage})` : '#526382',
-                        backgroundSize: 'cover',
-                        opacity: "0.8",
+        <Box
+            sx={{
+                width: "100%",
+                display: "flex",
+                flexDirection: "row",
+                gap: "60px",
+                flexWrap: "wrap",
+                marginTop: "76px",
+            }}
+        >
+            {data?.rows.map((item) => {
+                const backgroundImage = getBackgroundImageForWorkspace(item.id);
+                return (
+                    <Card
+                        onClick={() => navigate(`/${item.id}`)}
+                        sx={{
+                            width: "240px",
+                            minHeight: "250px",
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            gap: "10px",
+                        }}
+                        key={item.id}
+                    >
+                        <Box
+                            sx={{
+                                width: "100%",
+                                height: "10rem",
+                                backgroundImage: backgroundImage ? `url(${backgroundImage})` : "#526382",
+                                backgroundSize: "cover",
+                                opacity: "0.8",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                            }}
+                        ></Box>
+                        <Typography
+                            sx={{
+                                fontFamily: "Inter, sans-serif",
+                                fontSize: "16px",
+                                width: "100%",
+                                color: "#394D70",
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                            }}
+                            variant="h4"
+                        >
+                            {item.name.length > 20 ? `${item.name.slice(0, 20)}...` : item.name}
+                        </Typography>
+                    </Card>
+                );
+            })}
+
+            <Card
+                onClick={handleOpenMainModal}
+                sx={{
+                    width: "240px",
+                    minHeight: "250px",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    gap: "10px",
+                }}
+            >
+                <Box
+                    sx={{
+                        width: "100%",
+                        height: "10rem",
+                        background: "#526382",
+                        opacity: "0.7",
                         display: "flex",
                         alignItems: "center",
-                        justifyContent: "center"
-                    }}></Box>
-                    <Typography
-                        sx={{
-                            fontFamily: 'Inter, sans-serif',
-                            fontSize: "16px",
-                            width: "100%",
-                            color: "#394D70",
-                            whiteSpace: 'nowrap',
-                            overflow: 'hidden',
-                            textOverflow: 'ellipsis'
-                        }}
-                        variant="h4"
-                    >
-                        {item.name.length > 20 ? item.name.slice(0, 20) + '...' : item.name}
-                    </Typography>
-                </Card>
-            ))}
-            <Card onClick={handleOpenMainModal} sx={{ width: '240px', minHeight: "250px", display: 'flex', flexDirection: 'column', alignItems: "center", gap: "10px" }}>
-                <Box sx={{ width: '100%', height: '10rem', background: '#526382', opacity: "0.7", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                        justifyContent: "center",
+                    }}
+                >
                     <img src={images["cross"]} alt="cross" />
                 </Box>
-                <Typography sx={{ fontFamily: 'Inter, sans-serif', fontSize: "16px", width: "120px", color: "#394D70" }} variant="h4">create new workspace</Typography>
+                <Typography
+                    sx={{
+                        fontFamily: "Inter, sans-serif",
+                        fontSize: "16px",
+                        width: "120px",
+                        color: "#394D70",
+                    }}
+                    variant="h4"
+                >
+                    create new workspace
+                </Typography>
             </Card>
 
             {isMainModalVisible && (
-                <Box onClick={handleCloseMainModal} sx={{ width: '100%', height: '100vh', position: 'fixed', top: '0', left: '0', background: 'rgba(0, 0, 0, 0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center' }} className="popup-bg">
-                    <Box onClick={handlePopupClick} sx={{ width: '1000px', height: "700px", background: "white", borderRadius: "30px", display: "flex", flexDirection: "column", alignItems: "center", gap: "55px" }} className="popup">
+                <Box
+                    onClick={handleCloseMainModal}
+                    sx={{
+                        width: "100%",
+                        height: "100vh",
+                        position: "fixed",
+                        top: 0,
+                        left: 0,
+                        background: "rgba(0, 0, 0, 0.5)",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                    }}
+                    className="popup-bg"
+                >
+                    <Box
+                        onClick={handlePopupClick}
+                        sx={{
+                            width: "1000px",
+                            height: "700px",
+                            background: "white",
+                            borderRadius: "30px",
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            gap: "55px",
+                        }}
+                        className="popup"
+                    >
                         <Box sx={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                            <Box sx={{
-                                width: "1000px", height: "400px", borderRadius: "10px 10px 0 0", objectFit: "cover",
-                                objectPosition: "center",
-                            }} component="img" alt="photo" src={selectedImage || images["black"]} />
-                            <Box sx={{ position: "absolute" }} component="img" alt="plus" src={images["plus"]} onClick={handleOpenImagePopup} />
+                            <Box
+                                sx={{
+                                    width: "1000px",
+                                    height: "400px",
+                                    borderRadius: "10px 10px 0 0",
+                                    objectFit: "cover",
+                                    objectPosition: "center",
+                                }}
+                                component="img"
+                                alt="photo"
+                                src={selectedImage || images["black"]}
+                            />
+                            <Box
+                                sx={{ position: "absolute" }}
+                                component="img"
+                                alt="plus"
+                                src={images["plus"]}
+                                onClick={handleOpenImagePopup}
+                            />
                         </Box>
                         <Box sx={{ width: "400px", display: "flex", flexDirection: "column", gap: "10px" }}>
                             <Typography
                                 sx={{
-                                    fontFamily: 'Unbounded, sans-serif',
-                                    fontSize: '20px',
+                                    fontFamily: "Unbounded, sans-serif",
+                                    fontSize: "20px",
                                     fontWeight: "600",
                                     lineHeight: 1.1,
-                                    mb: '-4px',
+                                    mb: "-4px",
                                     color: "#394D70",
                                 }}
                             >
@@ -129,17 +226,17 @@ export const Workspaces = () => {
                             </Typography>
                             <Typography
                                 sx={{
-                                    fontFamily: 'Unbounded, sans-serif',
-                                    fontSize: '40px',
+                                    fontFamily: "Unbounded, sans-serif",
+                                    fontSize: "40px",
                                     fontWeight: "900",
-                                    mt: '-4px',
+                                    mt: "-4px",
                                     lineHeight: 1.1,
                                     color: "#394D70",
                                 }}
                             >
                                 WORKSPACE!
                             </Typography>
-                            <Box sx={{ display: "flex", flexDirection: 'column', gap: '20px' }}>
+                            <Box sx={{ display: "flex", flexDirection: "column", gap: "20px" }}>
                                 <TextField
                                     variant="outlined"
                                     required
@@ -155,14 +252,14 @@ export const Workspaces = () => {
                                 variant="contained"
                                 onClick={handleCreate}
                                 sx={{
-                                    fontFamily: 'Unbounded, sans-serif',
+                                    fontFamily: "Unbounded, sans-serif",
                                     fontWeight: "900",
                                     fontSize: "16px",
-                                    textTransform: 'none',
+                                    textTransform: "none",
                                     backgroundColor: "#394D70",
-                                    '&:hover': {
+                                    "&:hover": {
                                         backgroundColor: "#2c3e50",
-                                    }
+                                    },
                                 }}
                             >
                                 Создать
