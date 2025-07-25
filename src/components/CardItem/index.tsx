@@ -120,14 +120,14 @@ export const CardItem: React.FC<CardItemProps> = ({
         <img
           onClick={() => onSelectImage(card.id)}
           src={cross}
-          alt="select image"
+          alt="select"
           style={{ cursor: "pointer", zIndex: 1 }}
         />
         <IconButton
           onClick={handleDelete}
           sx={{ position: "absolute", top: 10, right: 10, padding: 0 }}
         >
-          <Box component="img" src={images["bin"]} alt="delete" sx={{ width: 24, height: 24 }} />
+          <Box component="img" src={images["bin"]} alt="Product card" sx={{ width: 24, height: 24 }} />
         </IconButton>
       </Box>
       <Box sx={{ width: "100%", display: "flex", flexDirection: "column", gap: "5px", padding: 0 }}>

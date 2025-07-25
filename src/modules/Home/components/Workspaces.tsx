@@ -5,7 +5,6 @@ import { workspaceService } from "../../../services/workspace.service";
 import { useNavigate } from "react-router-dom";
 import { images } from "../../../modules/exports/images";
 import { Popup } from "../../../components/Popup";
-import { useLocalStorage } from "../../../hooks/useLocalStorage";
 
 export const Workspaces = () => {
     const navigate = useNavigate();
