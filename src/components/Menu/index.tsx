@@ -1,8 +1,7 @@
-import { Box,  } from "@mui/material";
+import { Box } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { Paths } from "../../consts/routes";
 import { images } from "../../modules/exports/images";
-
 
 export const Menu = () => {
   const navigate = useNavigate();
@@ -27,17 +26,36 @@ export const Menu = () => {
         borderRadius: "0 0 10px 10px",
         top: 0,
         zIndex: 10,
+        boxSizing: "border-box", // Явно задаём
+        padding: "0", // Опционально: контролируем паддинги
       }}
     >
-      <Box sx={{ marginLeft: "20px", gap: "40px", display: "flex", alignItems: "center" }}>
-        <Box component="img" src={images["Vector 1"]} alt="Arrow" onClick={handleArrowClick} style={{ cursor: "pointer" }} />
+      <Box sx={{ marginLeft: "20px", gap: "40px", display: "flex", alignItems: "center", boxSizing: "border-box" }}>
+        <Box
+          component="img"
+          src={images["Vector 1"]}
+          alt="Arrow"
+          onClick={handleArrowClick}
+          style={{ cursor: "pointer", display: "block" }}
+        />
       </Box>
 
-      <Box sx={{ marginRight: "20px", gap: "40px", display: "flex", alignItems: "center" }}>
+      <Box sx={{ marginRight: "20px", gap: "40px", display: "flex", alignItems: "center", boxSizing: "border-box" }}>
         {/* <Box sx={{ cursor: "pointer" }} component="img" src={images["moon"]} alt="moon" /> */}
-        <Box component="img" onClick={handleClick} src={images["friends"]} alt="Friends" />
+        <Box
+          component="img"
+          onClick={handleClick}
+          src={images["friends"]}
+          alt="Friends"
+          style={{ cursor: "pointer", display: "block" }}
+        />
         <Link to={Paths.SignUp}>
-          <Box component="img" src={images["free-icon-logout-3889524 1"]} alt="Logout" />
+          <Box
+            component="img"
+            src={images["free-icon-logout-3889524 1"]}
+            alt="Logout"
+            style={{ display: "block" }} // Убираем возможные inline-проблемы
+          />
         </Link>
       </Box>
     </Box>

@@ -1,6 +1,6 @@
-import { BaseLayout } from "../../layout/base";
-import { Workspaces } from "./components/Workspaces";
-import { Typography, Box } from "@mui/material";
+import { BaseLayout } from '../../layout/base';
+import { Workspaces } from './components/Workspaces';
+import { Typography, Box } from '@mui/material';
 import { useLocation } from 'react-router-dom';
 
 export const Home = () => {
@@ -9,24 +9,24 @@ export const Home = () => {
 
   return (
     <BaseLayout>
-      <Box sx={{ mb: 4 }}>
+      <Box sx={{ mb: 3 }}>
         <Typography
           sx={{
             fontFamily: 'Unbounded, sans-serif',
-            fontSize: 32,
-            lineHeight: 1.1,
-            color: "#394D70",
+            fontSize: { xs: '24px', sm: '28px' },
+            lineHeight: 1.2,
+            color: '#394D70',
           }}
         >
           Welcome,
         </Typography>
         <Typography
           sx={{
-            fontSize: 40,
-            fontWeight: "900",
-            lineHeight: 1.1,
             fontFamily: 'Unbounded, sans-serif',
-            color: "#394D70",
+            fontSize: { xs: '32px', sm: '40px' },
+            fontWeight: '900',
+            lineHeight: 1.2,
+            color: '#394D70',
           }}
         >
           {email || 'UserName'}

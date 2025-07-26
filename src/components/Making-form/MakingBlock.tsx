@@ -69,6 +69,7 @@ export const MakingBlock: React.FC<MakingBlockProps> = ({
         minHeight: "50px",
         borderRadius: "10px",
         padding: "10px",
+        boxSizing: "border-box",
         background: "#FFFFFF",
         display: "flex",
         flexDirection: "column",
@@ -132,6 +133,7 @@ export const MakingBlock: React.FC<MakingBlockProps> = ({
               border: "2px dashed #ddd",
               borderRadius: "10px",
               padding: "10px",
+              boxSizing: "border-box"
             }}
           >
             Перетащите сюда карточку

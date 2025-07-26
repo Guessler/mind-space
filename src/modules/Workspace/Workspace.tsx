@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { useParams, useNavigate } from "react-router-dom";
-import { BaseLayout } from "../../layout/base";
 import useSWR, { useSWRConfig } from "swr";
 import { workspaceService } from "../../services/workspace.service";
 import {
@@ -21,7 +20,7 @@ import { Menu } from "../../components/Menu";
 import { Card } from "../../components/CardItem";
 import { MakingBlock } from "../../components/Making-form";
 import DeleteIcon from "@mui/icons-material/Delete";
-import { images } from "../../modules/exports/images"; // Импортируем изображения
+import { images } from "../../modules/exports/images";
 
 type Task = {
   id: string;
@@ -41,7 +40,6 @@ export const Workspace = () => {
   // --- Управление фоном ---
   const [backgroundImage, setBackgroundImage] = useState<string | null>(null);
 
-  // При появлении id — читаем фон или устанавливаем временный
   useEffect(() => {
     if (id) {
       const key = `workspaceBackgroundImage-${id}`;
@@ -49,7 +47,6 @@ export const Workspace = () => {
       if (saved) {
         setBackgroundImage(JSON.parse(saved));
       } else {
-        // 🖤 Устанавливаем временный фон: images["black"]
         const tempBackground = images["black"];
         setBackgroundImage(tempBackground);
         localStorage.setItem(key, JSON.stringify(tempBackground));
@@ -57,7 +54,6 @@ export const Workspace = () => {
     }
   }, [id]);
 
-  // Функция для обновления фона
   const handleSetBackgroundImage = useCallback((url: string | null) => {
     setBackgroundImage(url);
     if (id) {
@@ -80,14 +76,12 @@ export const Workspace = () => {
   const [workspaceName, setWorkspaceName] = useState(data?.name || "");
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  // Обновляем имя workspace при получении данных
   useEffect(() => {
     if (data?.name) {
       setWorkspaceName(data.name);
     }
   }, [data?.name]);
 
-  // Сохраняем задачи в localStorage
   useEffect(() => {
     if (id) {
       localStorage.setItem(`tasks-${id}`, JSON.stringify(tasks));
@@ -182,7 +176,6 @@ export const Workspace = () => {
         const fromTask = newTasks.find((t) => t.id === fromTaskId);
         const toTask = newTasks.find((t) => t.id === toTaskId);
         if (!fromTask || !toTask) return prevTasks;
-
         let cardToMove;
         if (dragIndex === -1) {
           const fromCardIndex = fromTask.cards.length > 0 ? 0 : -1;
@@ -241,8 +234,6 @@ export const Workspace = () => {
           onSelectImage={handleSetBackgroundImage}
         />
       )}
-
-      {/* Попап выбора изображения карточки */}
       {isCardImagePopupOpen && (
         <Popup
           onClose={() => setIsCardImagePopupOpen(false)}
@@ -252,12 +243,19 @@ export const Workspace = () => {
 
       {/* Блок с фоном */}
       <Box
-        key={backgroundImage} // Перерисовка при смене фона
+        key={backgroundImage}
         sx={{
           width: "100%",
           minHeight: "50px",
-          height: backgroundImage ? "350px" : "50px",
-          marginTop: backgroundImage ? "" : "50px",
+          height: {
+            xs: backgroundImage ? "200px" : "50px",
+            sm: backgroundImage ? "250px" : "50px",
+            md: backgroundImage ? "350px" : "50px",
+          },
+          mt: {
+            xs: backgroundImage ? "10px" : "50px",
+            md: backgroundImage ? "0" : "50px",
+          },
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -266,6 +264,7 @@ export const Workspace = () => {
           backgroundPosition: "center",
           borderRadius: "0 0 20px 20px",
           cursor: "pointer",
+          position: "relative",
         }}
         onClick={() => setIsImagePopupOpen(true)}
       >
@@ -274,16 +273,48 @@ export const Workspace = () => {
             fontFamily: "Unbounded",
             color: backgroundImage ? "#FFFFFF" : "#394D70",
             fontWeight: 900,
-            opacity: 0.1,
+            opacity: 0.15,
+            fontSize: {
+              xs: "14px",
+              sm: "16px",
+              md: "18px",
+            },
           }}
         >
           Добавить изображение
         </Typography>
       </Box>
 
-      <BaseLayout>
+      {/* Замена BaseLayout: просто Box с контролируемыми отступами */}
+      <Box
+        sx={{
+          width: "100%",
+          maxWidth: "100vw",
+          px: {
+            xs: "12px",
+            sm: "16px",
+            md: "24px",
+          },
+          boxSizing: "border-box",
+          overflowX: "hidden",
+        }}
+      >
         {/* Заголовок workspace */}
-        <Box sx={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "20px" }}>
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            flexDirection: {
+              xs: "column",
+              sm: "row",
+            },
+            gap: {
+              xs: "10px",
+              sm: "20px",
+            },
+            mb: "20px",
+          }}
+        >
           {isEditing ? (
             <TextField
               value={workspaceName}
@@ -298,16 +329,33 @@ export const Workspace = () => {
               }}
               autoFocus
               size="small"
-              sx={{ width: "300px" }}
+              sx={{
+                width: {
+                  xs: "100%",
+                  sm: "250px",
+                  md: "300px",
+                },
+              }}
             />
           ) : (
             <Typography
               variant="h3"
               sx={{
-                fontSize: 40,
+                fontSize: {
+                  xs: "24px",
+                  sm: "32px",
+                  md: "40px",
+                },
                 fontWeight: 900,
                 fontFamily: "Unbounded, sans-serif",
                 color: "#394D70",
+                textAlign: {
+                  xs: "center",
+                  sm: "left",
+                },
+                width: {
+                  xs: "100%",
+                },
                 cursor: "pointer",
                 "&:hover": { opacity: 0.8 },
               }}
@@ -319,22 +367,46 @@ export const Workspace = () => {
           <IconButton
             sx={{
               color: "#394D70",
-              marginLeft: "auto",
+              ml: "auto",
+              alignSelf: {
+                xs: "center",
+                sm: "flex-start",
+              },
             }}
             onClick={() => setShowDeleteDialog(true)}
           >
-            <DeleteIcon />
+            <DeleteIcon fontSize="small" />
           </IconButton>
         </Box>
 
         {/* Поле добавления задачи */}
-        <Box sx={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "20px" }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: {
+              xs: "column",
+              sm: "row",
+            },
+            alignItems: "center",
+            gap: {
+              xs: "10px",
+              sm: "10px",
+            },
+            mb: "30px",
+          }}
+        >
           <TextField
             value={newTaskTitle}
             onChange={(e) => setNewTaskTitle(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Введите название задачи"
-            sx={{ width: "90%" }}
+            sx={{
+              width: {
+                xs: "100%",
+                sm: "70%",
+                md: "80%",
+              },
+            }}
             size="small"
           />
           <Button
@@ -345,7 +417,15 @@ export const Workspace = () => {
               color: "#FFFFFF",
               fontWeight: 600,
               borderRadius: "10px",
-              padding: "10px 20px",
+              width: {
+                xs: "100%",
+                sm: "auto",
+              },
+              py: {
+                xs: "8px",
+                sm: "6px",
+              },
+              fontSize: "14px",
             }}
           >
             add task
@@ -353,7 +433,25 @@ export const Workspace = () => {
         </Box>
 
         {/* Блоки задач */}
-        <Box sx={{ display: "flex", flexWrap: "wrap", gap: "142px" }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: {
+              xs: "column",
+              sm: "row",
+            },
+            flexWrap: {
+              xs: "nowrap",
+              sm: "wrap",
+            },
+            gap: {
+              xs: "20px",
+              sm: "30px",
+              md: "142px",
+            },
+            width: "100%",
+          }}
+        >
           {tasks.map((task) => (
             <MakingBlock
               key={task.id}
@@ -373,7 +471,7 @@ export const Workspace = () => {
             />
           ))}
         </Box>
-      </BaseLayout>
+      </Box>
 
       {/* Диалог удаления */}
       <Dialog open={showDeleteDialog} onClose={() => setShowDeleteDialog(false)}>
