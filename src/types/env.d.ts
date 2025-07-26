@@ -1,8 +1,5 @@
-// src/types/env.d.ts
-
 interface ImportMetaEnv {
-    readonly VITE_API_BASE_URL: string;
-    // add other env variables here if needed
+    readonly REACT_APP_API_BASE_URL: string;
 }
 
 interface ImportMeta {
