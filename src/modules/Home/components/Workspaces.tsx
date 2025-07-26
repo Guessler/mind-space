@@ -10,11 +10,12 @@ export const Workspaces = () => {
     const navigate = useNavigate();
     const [isMainModalVisible, setIsMainModalVisible] = useState(false);
     const [isImagePopupVisible, setIsImagePopupVisible] = useState(false);
+    const [name, setName] = useState("");
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+
     const { data, isLoading, mutate } = useSWR("my-workspaces", () =>
         workspaceService.myWorkspaces({ page: 1, limit: 100 })
     );
-    const [name, setName] = useState("");
-    const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
     const handleOpenMainModal = () => {
         setIsMainModalVisible(true);
@@ -60,7 +61,7 @@ export const Workspaces = () => {
     };
 
     if (isLoading) {
-        return null;
+        return null; // можно оставить, если хочешь полный "пустой" экран при загрузке
     }
 
     return (
@@ -74,7 +75,8 @@ export const Workspaces = () => {
                 marginTop: "76px",
             }}
         >
-            {data?.rows.map((item) => {
+            {/* ✅ Исправлено: теперь безопасно, даже если data или data.rows — undefined */}
+            {(data?.rows || []).map((item) => {
                 const backgroundImage = getBackgroundImageForWorkspace(item.id);
                 return (
                     <Card
@@ -119,6 +121,7 @@ export const Workspaces = () => {
                 );
             })}
 
+            {/* Кнопка создания — оставлена как есть */}
             <Card
                 onClick={handleOpenMainModal}
                 sx={{
@@ -156,6 +159,7 @@ export const Workspaces = () => {
                 </Typography>
             </Card>
 
+            {/* Модалка — без изменений */}
             {isMainModalVisible && (
                 <Box
                     onClick={handleCloseMainModal}
@@ -265,6 +269,7 @@ export const Workspaces = () => {
                 </Box>
             )}
 
+            {/* Всплывающее окно выбора изображения */}
             {isImagePopupVisible && (
                 <Popup onClose={handleCloseImagePopup} onSelectImage={handleSelectImage} />
             )}
