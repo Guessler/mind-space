@@ -1,46 +1,126 @@
-# Getting Started with Create React App
+# 🛠️ Стек технологий
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+### **Frontend**
+- React
+- TypeScript
+- React Router DOM
+- useSWR
+- React DnD (react-dnd + HTML5 Backend)
+- Material-UI (MUI)
+- @emotion/react / @emotion/styled (CSS-in-JS)
+- localStorage (локальное хранение данных)
+- Axios (предполагается по структуре сервисов)
+- MobX (указан в зависимостях, вероятно используется)
 
-## Available Scripts
+### **Backend**
+- Node.js
+- TypeScript
+- Express
+- Express-ws (WebSocket поддержка)
+- PostgreSQL
+- Sequelize (ORM)
+- Bcrypt (хеширование паролей)
+- JSON Web Token (JWT)
+- CORS
+- Dotenv (переменные окружения)
+- Swagger (API документация)
+- Nodemon (автоперезагрузка сервера)
+- ts-node
+- Jest (тестирование)
 
-In the project directory, you can run:
+---
 
-### `npm start`
+# 📦 Инструкция по запуску проекта
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+Следуйте этим шагам, чтобы запустить проект локально.
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+---
 
-### `npm test`
+### 1. Клонируйте репозиторий
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```bash
+git clone <ссылка-на-ваш-репозиторий>
+cd <название-папки-проекта>
+```
 
-### `npm run build`
+---
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### 2. Установите зависимости
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+Убедитесь, что у вас установлен `npm` и `Node.js` (версия 16+).
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```bash
+npm install
+```
 
-### `npm run eject`
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+> Повторите `npm install` в папках `front/` и `back/`.
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+---
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+### 3. Настройте базу данных
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+1. Установите и запустите **PostgreSQL**.
+2. Создайте новую базу данных:
 
-## Learn More
+```sql
+CREATE DATABASE your_database_name;
+```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+3. (Опционально) Создайте пользователя и дайте права:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```sql
+CREATE USER your_user WITH PASSWORD 'your_password';
+GRANT ALL PRIVILEGES ON DATABASE your_database_name TO your_user;
+```
+
+---
+
+### 4. Настройте переменные окружения
+
+Создайте файл `.env` в папке **backend** (`back/.env`):
+
+```env
+PORT=5000
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=your_database_name
+DB_USER=your_user
+DB_PASSWORD=your_password
+JWT_SECRET=your_jwt_secret_key
+```
+
+> Замените значения на свои.  
+> Пример: `DB_NAME=taskboard_db`, `DB_USER=postgres`, `DB_PASSWORD=12345`, `JWT_SECRET=secret123`
+
+---
+
+### 5. Запустите проект
+
+#### Вариант A: Если проекты в одной папке (monorepo)
+
+Откройте два терминала:
+
+**Терминал 1 — Backend:**
+
+```bash
+cd back
+npm run dev
+```
+
+> Сервер запустится на `http://localhost:5000`
+
+**Терминал 2 — Frontend:**
+
+```bash
+cd front
+npm start
+```
+
+> Приложение откроется в браузере на `http://localhost:3000`
+
+---
+
+#### Вариант B: Если проекты разделены
+
+Запускайте каждый проект отдельно, как описано выше.
