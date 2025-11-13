@@ -1,4 +1,5 @@
 export type WorkspaceDto = {
+    type: WorkspaceType;
     id: number;
     name: string;
 }
@@ -15,4 +16,11 @@ export enum WorkspaceRoles {
     editor="EDITOR",
     viewer="VIEWER",
     guest="GUEST"
+}
+
+
+export enum WorkspaceType {
+    KANBAN_BOARD = 'KANBAN_BOARD',
+    TODO_LIST = 'TODO_LIST',
+    DROW_BOARD = 'DROW_BOARD',
 }

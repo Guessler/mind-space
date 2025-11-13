@@ -1,5 +1,6 @@
 import { DataTypes } from "sequelize";
 import db from "..";
+import { WorkspaceType } from "../../../types/workspace";
 
 export const UserModel = db.define('User', {
     id: {type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true},
@@ -15,20 +16,27 @@ export const SessionModel = db.define('Session', {
 
 export const WorkspaceModel = db.define('Workspace', {
     id: {type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true},
-    name: {type: DataTypes.TEXT}
+    name: {type: DataTypes.TEXT},
+    type: {
+        type: DataTypes.ENUM(...Object.values(WorkspaceType)),
+        allowNull: false,
+        defaultValue: WorkspaceType.TODO_LIST
+    }
 })
 
 export const WorkspaceUserModel = db.define('WorkspaceUsers', {
     id: {type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true},
-    role: {type: DataTypes.TEXT}
+    role: {type: DataTypes.TEXT},
+    // Убираем type отсюда, если он общий для всего workspace
 })
 
 export const TodoModel = db.define('Todo', {
     id: {type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true},
     name: {type: DataTypes.TEXT},
-    isCompleted: {type: DataTypes.BOOLEAN, defaultValue: 'false'}
+    isCompleted: {type: DataTypes.BOOLEAN, defaultValue: false} // Исправил на boolean
 })
 
+// Ассоциации
 UserModel.hasMany(SessionModel)
 SessionModel.belongsTo(UserModel)
 

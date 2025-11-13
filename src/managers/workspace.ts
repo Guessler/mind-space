@@ -2,13 +2,13 @@ import { IWorkspaceManager, IWorkspaceStore } from "../interfaces/workspace";
 import { UserModel } from "../store/db/models";
 import { List } from "../types";
 import { UserJwtPayload } from "../types/user";
-import { WorkspaceDto } from "../types/workspace";
+import { WorkspaceDto, WorkspaceType } from "../types/workspace";
 
 export class WorkspaceManager implements IWorkspaceManager {
     constructor(private readonly workSpaceStore: IWorkspaceStore) { }
 
-    async create(name: string, user: UserJwtPayload): Promise<WorkspaceDto> {
-        return await this.workSpaceStore.create(name, user);
+    async create(type: WorkspaceType, name: string, user: UserJwtPayload): Promise<WorkspaceDto> {
+        return await this.workSpaceStore.create(type, name, user);
     }
 
     private async getUserByEmail(email: string) {
@@ -74,14 +74,14 @@ export class WorkspaceManager implements IWorkspaceManager {
         return workspace;
     }
 
-    async update(id: number, name: string, user: UserJwtPayload): Promise<WorkspaceDto> {
+    async update(id: number, name: string, type: WorkspaceType, user: UserJwtPayload): Promise<WorkspaceDto> {
         const workspace = await this.workSpaceStore.getWorkspaceById(id);
         if (!workspace) throw new Error("NOT_FOUND_WORKSPACE");
 
         const membership = await this.workSpaceStore.getUserInfoById(id, user.id);
         if (!membership || !["owner", "editor"].includes(membership.role)) throw new Error("ACCESS_DENIED");
 
-        return await this.workSpaceStore.update(id, name);
+        return await this.workSpaceStore.update(id, name, type);
     }
 
     async delete(id: number, user: UserJwtPayload): Promise<void> {
