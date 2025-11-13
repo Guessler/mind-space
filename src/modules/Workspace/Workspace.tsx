@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import { useParams, useNavigate } from "react-router-dom";
@@ -21,6 +21,9 @@ import { Card } from "../../components/CardItem";
 import { MakingBlock } from "../../components/Making-form";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { images } from "../../modules/exports/images";
+import { WorkspaceType } from "../../types/workspace";
+import { TodoList } from "../Home/components/TodoList";
+import { DrawBoard } from "../Home/components/DrowBoard";
 
 type Task = {
   id: string;
@@ -37,7 +40,6 @@ export const Workspace = () => {
     () => (id ? workspaceService.getById(id) : null)
   );
 
-  // --- Управление фоном ---
   const [backgroundImage, setBackgroundImage] = useState<string | null>(null);
 
   useEffect(() => {
@@ -87,6 +89,80 @@ export const Workspace = () => {
       localStorage.setItem(`tasks-${id}`, JSON.stringify(tasks));
     }
   }, [tasks, id]);
+
+  // === Автоскролл при drag'е ===
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const isDraggingRef = useRef(false);
+  const scrollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    const handleDragStart = () => {
+      isDraggingRef.current = true;
+    };
+
+    const handleDragEnd = () => {
+      isDraggingRef.current = false;
+      if (scrollIntervalRef.current) {
+        clearInterval(scrollIntervalRef.current);
+        scrollIntervalRef.current = null;
+      }
+    };
+
+    document.addEventListener("dragstart", handleDragStart);
+    document.addEventListener("dragend", handleDragEnd);
+    document.addEventListener("drop", handleDragEnd);
+    document.addEventListener("mouseup", handleDragEnd);
+
+    return () => {
+      document.removeEventListener("dragstart", handleDragStart);
+      document.removeEventListener("dragend", handleDragEnd);
+      document.removeEventListener("drop", handleDragEnd);
+      document.removeEventListener("mouseup", handleDragEnd);
+    };
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    if (!isDraggingRef.current || !scrollContainerRef.current) return;
+
+    const container = scrollContainerRef.current;
+    const rect = container.getBoundingClientRect();
+    const mouseX = e.clientX;
+
+    const scrollZone = 120;
+    const scrollSpeed = 60;
+    const intervalMs = 8;
+
+    if (scrollIntervalRef.current) {
+      clearInterval(scrollIntervalRef.current);
+    }
+
+    if (mouseX < rect.left + scrollZone && container.scrollLeft > 0) {
+      scrollIntervalRef.current = setInterval(() => {
+        if (container.scrollLeft > 0) {
+          container.scrollLeft -= scrollSpeed;
+        } else {
+          if (scrollIntervalRef.current) {
+            clearInterval(scrollIntervalRef.current);
+            scrollIntervalRef.current = null;
+          }
+        }
+      }, intervalMs);
+    } else if (
+      mouseX > rect.right - scrollZone &&
+      container.scrollLeft < container.scrollWidth - container.clientWidth
+    ) {
+      scrollIntervalRef.current = setInterval(() => {
+        if (container.scrollLeft < container.scrollWidth - container.clientWidth) {
+          container.scrollLeft += scrollSpeed;
+        } else {
+          if (scrollIntervalRef.current) {
+            clearInterval(scrollIntervalRef.current);
+            scrollIntervalRef.current = null;
+          }
+        }
+      }, intervalMs);
+    }
+  }, []);
 
   // --- Функции ---
   const handleRename = async () => {
@@ -169,8 +245,15 @@ export const Workspace = () => {
     );
   }, []);
 
+  // ✅ ИСПРАВЛЕНО: защита от повторных вызовов moveCard
   const moveCard = useCallback(
     (dragIndex: number, hoverIndex: number, fromTaskId: string, toTaskId: string) => {
+      const moveKey = `${fromTaskId}-${toTaskId}-${dragIndex}-${hoverIndex}`;
+      if ((moveCard as any).lastMoveKey === moveKey) {
+        return;
+      }
+      (moveCard as any).lastMoveKey = moveKey;
+
       setTasks((prevTasks) => {
         const newTasks = prevTasks.map((task) => ({ ...task, cards: [...task.cards] }));
         const fromTask = newTasks.find((t) => t.id === fromTaskId);
@@ -220,14 +303,108 @@ export const Workspace = () => {
     [currentCardId, id]
   );
 
-  // --- Рендер ---
+  const renderWorkspaceContent = () => {
+    switch (data?.type) {
+      case WorkspaceType.TODO_LIST:
+        return <TodoList />;
+
+      case WorkspaceType.DROW_BOARD:
+        return <DrawBoard />;
+
+      case WorkspaceType.KANBAN_BOARD:
+      default:
+        return (
+          <>
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", sm: "row" },
+                alignItems: "center",
+                gap: 2,
+                mb: 3,
+              }}
+            >
+              <TextField
+                value={newTaskTitle}
+                onChange={(e) => setNewTaskTitle(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Название колонки"
+                size="small"
+                fullWidth
+                sx={{ width: "100%" }}
+              />
+              <Button
+                variant="contained"
+                onClick={handleAddTask}
+                disabled={!newTaskTitle.trim()}
+                sx={{
+                  minWidth: 120,
+                  fontWeight: 600,
+                  borderRadius: "8px",
+                  width: { xs: "100%", sm: "auto" },
+                  mt: { xs: 1, sm: 0 },
+                }}
+              >
+                Добавить
+              </Button>
+            </Box>
+
+            <Box
+              ref={scrollContainerRef}
+              onDragOver={handleDragOver}
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                flexWrap: "nowrap",
+                gap: 2,
+                width: "100%",
+                overflowX: "auto",
+                pb: 1,
+                scrollBehavior: "smooth",
+                minHeight: "calc(100vh - 200px)",
+                "&::-webkit-scrollbar": {
+                  height: 8,
+                },
+                "&::-webkit-scrollbar-thumb": {
+                  backgroundColor: "rgba(0,0,0,0.3)",
+                  borderRadius: 4,
+                },
+                "&::-webkit-scrollbar-track": {
+                  backgroundColor: "transparent",
+                },
+              }}
+            >
+{tasks.map((task) => (
+  <MakingBlock
+    key={task.id}
+    blockId={task.id}
+    title={task.title}
+    cards={task.cards}
+    onDeleteCard={(cardId: string) => deleteCard(task.id, cardId)}
+    onSelectImage={(cardId: string) => {
+      setCurrentCardId(cardId);
+      setIsCardImagePopupOpen(true);
+    }}
+    onUpdateTitle={(newTitle: string) => updateBlockTitle(task.id, newTitle)}
+    onCardAdd={(card: Card) => addCard(task.id, card)}
+    onCardUpdate={(card: Card) => updateCard(task.id, card)}
+    onDeleteBlock={() => deleteTask(task.id)}
+    moveCard={moveCard}
+  />
+))}
+              <Box sx={{ minWidth: 20, flexShrink: 0 }} />
+            </Box>
+          </>
+        );
+    }
+  };
+
   if (isLoading || !id) return null;
 
   return (
     <DndProvider backend={HTML5Backend}>
       <Menu />
 
-      {/* Попап выбора фона */}
       {isImagePopupOpen && (
         <Popup
           onClose={() => setIsImagePopupOpen(false)}
@@ -241,21 +418,13 @@ export const Workspace = () => {
         />
       )}
 
-      {/* Блок с фоном */}
       <Box
         key={backgroundImage}
         sx={{
           width: "100%",
-          minHeight: "50px",
-          height: {
-            xs: backgroundImage ? "200px" : "50px",
-            sm: backgroundImage ? "250px" : "50px",
-            md: backgroundImage ? "350px" : "50px",
-          },
-          mt: {
-            xs: backgroundImage ? "10px" : "50px",
-            md: backgroundImage ? "0" : "50px",
-          },
+          minHeight: 50,
+          height: backgroundImage ? { xs: 200, sm: 250, md: 300 } : 50,
+          mt: backgroundImage ? { xs: 1, md: 0 } : 6,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -273,46 +442,30 @@ export const Workspace = () => {
             fontFamily: "Unbounded",
             color: backgroundImage ? "#FFFFFF" : "#394D70",
             fontWeight: 900,
-            opacity: 0.15,
-            fontSize: {
-              xs: "14px",
-              sm: "16px",
-              md: "18px",
-            },
+            opacity: 0.2,
+            fontSize: { xs: "14px", sm: "16px", md: "18px" },
           }}
         >
-          Добавить изображение
+          {backgroundImage ? "Изменить фон" : "Добавить фон"}
         </Typography>
       </Box>
 
-      {/* Замена BaseLayout: просто Box с контролируемыми отступами */}
       <Box
         sx={{
           width: "100%",
-          maxWidth: "100vw",
-          px: {
-            xs: "12px",
-            sm: "16px",
-            md: "24px",
-          },
+          px: { xs: 2, sm: 3, md: 4 },
           boxSizing: "border-box",
-          overflowX: "hidden",
+          minHeight: "100vh",
+          pb: 4,
         }}
       >
-        {/* Заголовок workspace */}
         <Box
           sx={{
             display: "flex",
             alignItems: "center",
-            flexDirection: {
-              xs: "column",
-              sm: "row",
-            },
-            gap: {
-              xs: "10px",
-              sm: "20px",
-            },
-            mb: "20px",
+            flexDirection: { xs: "column", sm: "row" },
+            gap: 2,
+            mb: 4,
           }}
         >
           {isEditing ? (
@@ -329,35 +482,19 @@ export const Workspace = () => {
               }}
               autoFocus
               size="small"
-              sx={{
-                width: {
-                  xs: "100%",
-                  sm: "250px",
-                  md: "300px",
-                },
-              }}
+              sx={{ width: { xs: "100%", sm: 300 } }}
             />
           ) : (
             <Typography
-              variant="h3"
+              variant="h4"
               sx={{
-                fontSize: {
-                  xs: "24px",
-                  sm: "32px",
-                  md: "40px",
-                },
-                fontWeight: 900,
+                fontSize: { xs: "24px", sm: "32px" },
+                fontWeight: 800,
                 fontFamily: "Unbounded, sans-serif",
                 color: "#394D70",
-                textAlign: {
-                  xs: "center",
-                  sm: "left",
-                },
-                width: {
-                  xs: "100%",
-                },
                 cursor: "pointer",
-                "&:hover": { opacity: 0.8 },
+                textAlign: { xs: "center", sm: "left" },
+                "&:hover": { opacity: 0.85 },
               }}
               onClick={() => setIsEditing(true)}
             >
@@ -368,112 +505,17 @@ export const Workspace = () => {
             sx={{
               color: "#394D70",
               ml: "auto",
-              alignSelf: {
-                xs: "center",
-                sm: "flex-start",
-              },
+              alignSelf: { xs: "center", sm: "flex-start" },
             }}
             onClick={() => setShowDeleteDialog(true)}
           >
-            <DeleteIcon fontSize="small" />
+            <DeleteIcon />
           </IconButton>
         </Box>
 
-        {/* Поле добавления задачи */}
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: {
-              xs: "column",
-              sm: "row",
-            },
-            alignItems: "center",
-            gap: {
-              xs: "10px",
-              sm: "10px",
-            },
-            mb: "30px",
-          }}
-        >
-          <TextField
-            value={newTaskTitle}
-            onChange={(e) => setNewTaskTitle(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Введите название задачи"
-            sx={{
-              width: {
-                xs: "100%",
-                sm: "70%",
-                md: "80%",
-              },
-            }}
-            size="small"
-          />
-          <Button
-            variant="contained"
-            onClick={handleAddTask}
-            sx={{
-              backgroundColor: "#394D70",
-              color: "#FFFFFF",
-              fontWeight: 600,
-              borderRadius: "10px",
-              width: {
-                xs: "100%",
-                sm: "auto",
-              },
-              py: {
-                xs: "8px",
-                sm: "6px",
-              },
-              fontSize: "14px",
-            }}
-          >
-            add task
-          </Button>
-        </Box>
-
-        {/* Блоки задач */}
-        <Box
-          sx={{
-            display: "flex",
-            flexDirection: {
-              xs: "column",
-              sm: "row",
-            },
-            flexWrap: {
-              xs: "nowrap",
-              sm: "wrap",
-            },
-            gap: {
-              xs: "20px",
-              sm: "30px",
-              md: "142px",
-            },
-            width: "100%",
-          }}
-        >
-          {tasks.map((task) => (
-            <MakingBlock
-              key={task.id}
-              blockId={task.id}
-              title={task.title}
-              cards={task.cards}
-              onDeleteCard={(cardId) => deleteCard(task.id, cardId)}
-              onSelectImage={(cardId) => {
-                setCurrentCardId(cardId);
-                setIsCardImagePopupOpen(true);
-              }}
-              onUpdateTitle={(newTitle) => updateBlockTitle(task.id, newTitle)}
-              onCardAdd={(card) => addCard(task.id, card)}
-              onCardUpdate={(card) => updateCard(task.id, card)}
-              onDeleteBlock={() => deleteTask(task.id)}
-              moveCard={moveCard}
-            />
-          ))}
-        </Box>
+        {renderWorkspaceContent()}
       </Box>
 
-      {/* Диалог удаления */}
       <Dialog open={showDeleteDialog} onClose={() => setShowDeleteDialog(false)}>
         <DialogTitle>Подтвердите удаление</DialogTitle>
         <DialogContent>

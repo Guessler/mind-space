@@ -1,6 +1,6 @@
 import { $auth_http } from "../consts/axios";
 import { List } from "../types";
-import { WorkspaceDto } from "../types/workspace";
+import { WorkspaceDto, WorkspaceType } from "../types/workspace";
 
 const BASE_URL = `/api/workspace`;
 
@@ -14,8 +14,8 @@ const myWorkspaces = async ({ page = 1, limit = 20 }: { page?: number; limit?: n
     return data;
 };
 
-const create = async (name: string): Promise<WorkspaceDto> => {
-    const { data } = await $auth_http.post(`${BASE_URL}/create`, { name }, {
+const create = async (type: WorkspaceType ,name: string): Promise<WorkspaceDto> => {
+    const { data } = await $auth_http.post(`${BASE_URL}/create`, { name, type }, {
         headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
         },

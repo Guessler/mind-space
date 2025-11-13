@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { Box, IconButton, TextField } from "@mui/material";
 import { useDrag, useDrop, DragSourceMonitor, DropTargetMonitor } from "react-dnd";
 import cross from "../../assets/svg/cross.svg";
@@ -34,7 +34,7 @@ export const CardItem: React.FC<CardItemProps> = ({
   onUpdateTitle,
   onUpdateDescription,
 }) => {
-  const ref = React.useRef<HTMLDivElement>(null);
+  const ref = useRef<HTMLDivElement>(null);
 
   const [, drop] = useDrop({
     accept: ITEM_TYPE,
